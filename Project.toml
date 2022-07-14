@@ -3,6 +3,11 @@ uuid = "f8e8dcbf-c8af-4c89-b3d0-30e7f728b8cf"
 authors = ["Eirik Eylands Brandsaas"]
 version = "0.1.0"
 
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+ShiftedArrays = "1277b4bf-5013-50f5-be3d-901d8477a67a"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
 [compat]
 julia = "1.8"
 
