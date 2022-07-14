@@ -10,9 +10,9 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
             throw(ArgumentError("$var already exists"))
         end
     end
-    df._end = fill(missing,nrow(df))
-    df._seq = fill(missing,nrow(df))
-    df._spell = fill(missing,nrow(df))
+    df._end = fill(0,nrow(df))
+    df._seq = fill(1,nrow(df))
+    df._spell = fill(2,nrow(df))
 
     return nothing
 end
