@@ -12,16 +12,20 @@ From the original announcement of the `tsspell` package:
 > [*Nick Cox on StataList*](https://www.stata.com/statalist/archive/2002-08/msg00279.html)
 
 ## First goals:
-For a single id `pid` and time variable `t` in a Grouped DataFrame (`gdf`):
+For a single id `:pid` and time variable `:t` in a Grouped DataFrame (`gdf`):
 - Easy syntax for creating *new* columns with lags and lads
-  - `lag!(gdf,:var)
-  - `lead!(gdf,:var)
+  - `lag!(gdf,:t,:var)`
+  - `lead!(gdf,:t,:var)`
   - Allow optional argument `;length=::Int` that sets the number of periods for the lag/lead operation
-- Functionality that replicates the `tsspell` package
-  - Creates three new columsn in the DataFrame:
+- Functionality that replicates the `tsspell` package (`spell!(gdf,:t,:var)`)
+  - Creates three new columsn in `gdf`:
     1. `_spell` for indicating distinct spells
     2. `_seq` for indicating the sequence *within* a spell
     3. `_end` which indicates if this is the end of a spell
 
 ## Secondary Goals
 ...
+
+## Things to think about
+- Implement a new struct that is a `PanelDataFrame` which is just a `GroupedDataFrame` but which also stores the time variable, it's steps, and so on? 
+  - This way we don't have to always tell the program the time variable =)
