@@ -36,11 +36,11 @@ end
 @testset "Basic lag!" begin
     df = test_df_simple()
     lag!(df,:id,:t,:a)
-    @test df.Fa = [missing, 0, 0, missing, 1, 1]
+    @test isequal(df.La,[missing, 0, 0, missing, 1, 1])
 end
 
 @testset "Basic lead!" begin
     df = test_df_simple()
     lead!(df,:id,:t,:a)
-    @test df.La = [0, 1, missing, 1, 1, missing]
+    @test isequal(df.Fa,[0, 1, missing, 1, 0, missing])
 end
