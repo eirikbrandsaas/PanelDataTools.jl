@@ -39,7 +39,9 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
             df[i,:_spell] = df[i-1,:_spell] + 1
             df[i,:_seq] = 1
         end
+    end
 
+    for i = collect(1:nrow(df))[Not(T:T:end)]
         if isequal(Ftmp[i],false)
             df[i,:_end] = true
         end
