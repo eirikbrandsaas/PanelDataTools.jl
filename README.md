@@ -12,13 +12,13 @@ From the original announcement of the `tsspell` package:
 > [*Nick Cox on StataList*](https://www.stata.com/statalist/archive/2002-08/msg00279.html)
 
 ## First goals:
-For a single id `:pid` and time variable `:t` in a Grouped DataFrame (`gdf`):
+For a single id `:pid` and time variable `:t` in a DataFrame (`df`) which contains a 1) balanced panel 2) with a constant time spacing (delta), 3) without missing time periods for any `:id`
 - Easy syntax for creating *new* columns with lags and lads
-  - `lag!(gdf,:t,:var)`
-  - `lead!(gdf,:t,:var)`
+  - `lag!(df,:id,:t,:var)`
+  - `lead!(df,:id,:t,:var)`
   - Allow optional argument `;length=::Int` that sets the number of periods for the lag/lead operation
-- Functionality that replicates the `tsspell` package (`spell!(gdf,:t,:var)`)
-  - Creates three new columsn in `gdf`:
+- Functionality that replicates the `tsspell` package (`spell!(df,:id,:t,:var)`)
+  - Creates three new columsn in `df`:
     1. `_spell` for indicating distinct spells
     2. `_seq` for indicating the sequence *within* a spell
     3. `_end` which indicates if this is the end of a spell
