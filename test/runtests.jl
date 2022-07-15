@@ -33,6 +33,20 @@ function test_df_simple2()
 end
 
 
+function df_diffT() # Checking whether package works with different T within panel
+    df = DataFrame(id = [1,1,2,2,2], t = [1,2,1,2,3], a = [1,1,1,0,0])
+end
+
+
+function df_missid() # Checking whether package works with different T within panel
+    df = DataFrame(id = [1,1,1,2,missing,2], t = [1,2,3,1,2,3], a = [1,1,1,1,0,0])
+end
+
+function df_misst() # Checking whether package works with different T within panel
+    df = DataFrame(id = [1,1,1,2,2,2], t = [1,missing,3,1,2,3], a = [1,1,1,1,0,0])
+end
+
+
 
 @testset "Basic lag!" begin
     df = test_df_simple1()
@@ -41,6 +55,18 @@ end
 
     lag!(df,:id,:t,:a,2)
     @test isequal(df.L2a,[missing, missing, 0, missing, missing, 1])
+
+    df = test_df_simple3()
+    lag!(df,:id,:t,:a)
+    @test isequal(df.L1a,[missing, 1, missing, 1, 0])
+
+    df = df_missid()
+    lag!(df,:id,:t,:a)
+    @test isequal(df.L1a,[missing, 1, 1, missing, missing, missing])
+
+    df = df_misst()
+    @test_throws TypeError lag!(df,:id,:t,:a)
+    @test_broken isequal(df.L1a,[missing, 1, 1, missing, missing, missing])
 end
 
 @testset "Basic lead!" begin
