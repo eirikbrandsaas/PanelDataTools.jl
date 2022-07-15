@@ -5,9 +5,6 @@ using DataFrames
 using ShiftedArrays
 using PanelShift
 
-function _assert_panel(df)
-    # This function should have some assertions that check that the panel is balanced etc
-end
 
 function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     for var in ["_end", "_seq", "_spell"]
@@ -16,8 +13,11 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
         end
     end
 
-    _assert_panel(df)
+    @assert any(ismissing.(df.t))==false "Currently does not support missing time observations"
     gdf = groupby(df,PID)
+    for ig=1:gdf.ngroups
+        @assert nrow(gdf[1])==nrow(gdf[ig])
+    end
     T = nrow(gdf[1])
 
     Lvar = _lag(df,PID,TID,var)
