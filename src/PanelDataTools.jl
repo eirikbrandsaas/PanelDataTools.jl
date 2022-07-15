@@ -45,15 +45,6 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     return nothing
 end
 
-function _lag(df,PID::Symbol,TID::Symbol,var::Symbol)
-    combine(groupby(df, PID), var => lag)[:,2]
-end
-
-function _lead(df,PID::Symbol,TID::Symbol,var::Symbol)
-    combine(groupby(df, PID), var => lead)[:,2]
-end
-
-
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol)
     panellead!(df,PID,TID,var,"F1"*String(var),1)
     return nothing
