@@ -3,6 +3,7 @@ module PanelDataTools
 # Write your package code here.
 using DataFrames
 using ShiftedArrays
+using PanelShift
 
 function _assert_panel(df)
     # This function should have some assertions that check that the panel is balanced etc
@@ -47,33 +48,27 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
         end
     end
     df[T:T:end,:_end] .= true
-    # for i = collect(1:nrow(df))[Not(T:T:end)] # All rows except first one for each id
-    # end
 
     return nothing
 end
 
 function _lag(df,PID::Symbol,TID::Symbol,var::Symbol)
-    sort!(df,[PID,TID])
     combine(groupby(df, PID), var => lag)[:,2]
 end
 
 function _lead(df,PID::Symbol,TID::Symbol,var::Symbol)
-    sort!(df,[PID,TID])
     combine(groupby(df, PID), var => lead)[:,2]
 end
 
 
-function lag!(df,PID::Symbol,TID::Symbol,var::Symbol)
-    sort!(df,[PID,TID])
-
-    df[!,"L"*String(var)] = _lag(df,PID,TID,var)
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol)
+    panellead!(df,PID,TID,var,"F"*String(var))
     return nothing
 end
 
 
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol)
-    df[!,"F"*String(var)] = _lead(df,PID,TID,var)
+function lag!(df,PID::Symbol,TID::Symbol,var::Symbol)
+    panellag!(df,PID,TID,var,"L"*String(var))
     return nothing
 end
 
