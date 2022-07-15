@@ -4,7 +4,7 @@
 [![Coverage](https://codecov.io/gh/eirikbrandsaas/PanelDataTools.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/eirikbrandsaas/PanelDataTools.jl)
 
 ## Quick Start
-Easily create leads, lags, and spells from a balanced, uniform, no-missing Panel:
+Easily create leads, lags, and spells from a panel that is balanced, constant time gaps, *and* with non-missing time and id:
 ```julia
 using PanelDataTools, DataFrames
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])
@@ -47,14 +47,15 @@ will give you
    6 │     2      3      0       2      1   true
 ```
 ## Introduction
-This package aims to introduce some convenience tools for working with Panel Data in the `DataFrames.jl` world in Julia.  In particular, it is inspired by some of Stata's great panel data packages such as `tsspell` and lag/lead/difference operators `L.`, `F.`, and `D.`.
+This package aims to introduce some convenience tools for working with Panel Data in the `DataFrames.jl` world in Julia.  In particular, it is inspired by some of Stata's great panel data packages such as `tsspell` and lag/lead/difference operators `L.`, `F.`, and `D.`. It relies on [`DataFrame.jl`](https://github.com/JuliaData/DataFrames.jl) and [`PanelShift.jl`](https://github.com/FuZhiyu/PanelShift.jl/blob/master/src/PanelShift.jl)
 
 From the original announcement of the `tsspell` package:
 > One underlying theme recurs frequently on Statalist: there's a direct solution to the problem making use of Stata's features. However, if you do this kind of thing a lot, you might also want a convenience program which encapsulates some of the basic tricks in the neighbourhood.
 >
 > [*Nick Cox on StataList*](https://www.stata.com/statalist/archive/2002-08/msg00279.html)
 
-## First goals:
+## Planned Stages
+### **Done:** ~~First goals (lead, lag, spells):~~
 For a single id `:pid` and time variable `:t` in a DataFrame (`df`) which contains a 1) balanced panel 2) with a constant time spacing (delta), 3) without missing time periods for any `:id`
 - Easy syntax for creating *new* columns with lags and lads
   - `lag!(df,:id,:t,:var)`
@@ -66,9 +67,15 @@ For a single id `:pid` and time variable `:t` in a DataFrame (`df`) which contai
     2. `_seq` for indicating the sequence *within* a spell
     3. `_end` which indicates if this is the end of a spell
 
-## Secondary Goals
-...
+### Secondary Goals (assertions, new type)
+- Add checks for whether the panel satisfies assumed structures
+- Add a new type `PanelDataFrame` (`PanelDataFrame`)that contains that, and also contains info on time gap (delta), length (T), individuals (N), name of the id and time variables. 
+  - Preferably this on also has a trigger for if the dataset is modified so that it is no longer sorted.
+  - For all functions allow passing this object instead of a `DataFrame` so that the user doesn't have to specify the `:id` and the `:t` variables all the time. This should also turn of sorting checks and would allow for some optimizations?
 
-## Things to think about
-- Implement a new struct that is a `PanelDataFrame` which is just a `GroupedDataFrame` but which also stores the time variable, it's steps, and so on? 
-  - This way we don't have to always tell the program the time variable =)
+
+### Later goals
+- Make the `spell` function faster
+- Allow for less stringent panels (i.e., with missing time, unequal length, and so on)
+- More functionality?
+
