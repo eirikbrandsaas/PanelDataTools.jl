@@ -13,12 +13,9 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
         end
     end
 
-    @assert any(ismissing.(df.t))==false "Currently does not support missing time observations"
+    @assert any(ismissing.(df[!,TID]))==false "Currently does not support missing time observations"
     gdf = groupby(df,PID)
     T = [nrow(gdf[i]) for i = 1:gdf.ngroups]
-    for ig=1:gdf.ngroups
-        # @assert nrow(gdf[1])==nrow(gdf[ig])
-    end
 
     L1var = Symbol("L1"*String(var))
     lag!(df,PID,TID,var)

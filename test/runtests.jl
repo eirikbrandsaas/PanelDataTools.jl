@@ -108,3 +108,11 @@ end
     @test df._spell == [1, 2, 1, 2, 2]
     @test df._seq == [1, 1, 1, 1, 2]
 end
+
+
+## Small test for github issues
+@testset "Issue #4 - had wrong column name in spell!() " begin
+    df = DataFrame(i=[1,1,2,2],year=[1,2,1,2],val=[1,1,1,1])
+    spell!(df,:i,:year,:val)
+    @test df._spell == [1, 1, 1, 1]
+end
