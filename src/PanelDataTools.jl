@@ -15,29 +15,31 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 
     @assert any(ismissing.(df.t))==false "Currently does not support missing time observations"
     gdf = groupby(df,PID)
+    T = [nrow(gdf[i]) for i = 1:gdf.ngroups]
     for ig=1:gdf.ngroups
-        @assert nrow(gdf[1])==nrow(gdf[ig])
+        # @assert nrow(gdf[1])==nrow(gdf[ig])
     end
-    T = nrow(gdf[1])
 
-    Lvar = _lag(df,PID,TID,var)
-    Fvar = _lead(df,PID,TID,var)
-    Ltmp = (df[!,var] .== Lvar)
-    Ftmp = (df[!,var] .== Fvar)
+    L1var = Symbol("L1"*String(var))
+    lag!(df,PID,TID,var)
 
     df._spell = fill(1,nrow(df))
     df._seq = fill(1,nrow(df))
 
-    # Find spells and sequence
-    for i = collect(1:nrow(df))[Not(1:T:end)] # All rows except first one for each id
-        if Ltmp[i] == true
-            df[i,:_spell] = df[i-1,:_spell]
-            df[i,:_seq] = df[i-1,:_seq]+1
-        else
-            df[i,:_spell] = df[i-1,:_spell] + 1
-            df[i,:_seq] = 1
+     # Find spells and sequence
+     for i = 1:gdf.ngroups # Just loop over each sub-dataframe:
+        for t = 2:T[i]
+            if gdf[i][t,var] == gdf[i][t,L1var]
+                gdf[i][t,:_spell] = gdf[i][t-1,:_spell]
+                gdf[i][t,:_seq] = gdf[i][t-1,:_seq]+1
+            else
+                gdf[i][t,:_spell] = gdf[i][t-1,:_spell] + 1
+                gdf[i][t,:_seq] = 1
+            end
         end
     end
+
+    select!(df, Not(L1var))
 
 
     return nothing

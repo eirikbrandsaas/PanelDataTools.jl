@@ -92,7 +92,7 @@ end
     @test df._seq == [1, 2, 3, 1, 1, 2]
 
     df = df_diffT()
-    @test_throws AssertionError spell!(df,:id,:t,:a)
-    @test_broken df._spell == [1, 1, 1, 2, 2]
-    @test_broken df._seq == [1, 2, 1, 1, 2]
+    spell!(df,:id,:t,:a)
+    @test df._spell == [1, 1, 1, 2, 2]
+    @test df._seq == [1, 2, 1, 1, 2]
 end
