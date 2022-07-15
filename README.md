@@ -36,15 +36,15 @@ spell!(df,:id,:t,:a)
 will give you
 ```julia
 6×6 DataFrame
- Row │ id     t      a      _spell  _seq   _end  
-     │ Int64  Int64  Int64  Int64   Int64  Bool  
-─────┼───────────────────────────────────────────
-   1 │     1      1      0       1      1  false
-   2 │     1      2      0       1      2   true
-   3 │     1      3      1       2      1   true
-   4 │     2      1      1       1      1  false
-   5 │     2      2      1       1      2   true
-   6 │     2      3      0       2      1   true
+ Row │ id     t      a      _spell  _seq  
+     │ Int64  Int64  Int64  Int64   Int64 
+─────┼────────────────────────────────────
+   1 │     1      1      0       1      1 
+   2 │     1      2      0       1      2 
+   3 │     1      3      1       2      1 
+   4 │     2      1      1       1      1 
+   5 │     2      2      1       1      2 
+   6 │     2      3      0       2      1 
 ```
 ## Introduction
 This package aims to introduce some convenience tools for working with Panel Data in the `DataFrames.jl` world in Julia.  In particular, it is inspired by some of Stata's great panel data packages such as `tsspell` and lag/lead/difference operators `L.`, `F.`, and `D.`. It relies on [`DataFrame.jl`](https://github.com/JuliaData/DataFrames.jl) and [`PanelShift.jl`](https://github.com/FuZhiyu/PanelShift.jl/blob/master/src/PanelShift.jl)
@@ -65,7 +65,6 @@ For a single id `:pid` and time variable `:t` in a DataFrame (`df`) which contai
   - Creates three new columsn in `df`:
     1. `_spell` for indicating distinct spells
     2. `_seq` for indicating the sequence *within* a spell
-    3. `_end` which indicates if this is the end of a spell
 
 ### Secondary Goals (assertions, new type)
 - Add checks for whether the panel satisfies assumed structures

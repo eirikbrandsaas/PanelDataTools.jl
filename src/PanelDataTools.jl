@@ -27,7 +27,6 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 
     df._spell = fill(1,nrow(df))
     df._seq = fill(1,nrow(df))
-    df._end = fill(false,nrow(df))
 
     # Find spells and sequence
     for i = collect(1:nrow(df))[Not(1:T:end)] # All rows except first one for each id
@@ -40,13 +39,6 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
         end
     end
 
-    # Find if it is the end of a spell
-    for i = collect(1:nrow(df))[Not(T:T:end)]
-        if isequal(Ftmp[i],false)
-            df[i,:_end] = true
-        end
-    end
-    df[T:T:end,:_end] .= true
 
     return nothing
 end

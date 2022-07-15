@@ -83,7 +83,6 @@ end
     spell!(df,:id,:t,:a)
     @test df._spell == [1, 1, 2, 1, 1, 2]
     @test df._seq == [1, 2, 1, 1, 2, 1]
-    @test df._end == [false, true, true, false, true, true]
 
     @test_throws ArgumentError spell!(df,:id,:t,:a) # Check that test throws if variables exist
 
@@ -91,11 +90,9 @@ end
     spell!(df,:id,:t,:a)
     @test df._spell == [1, 1, 1, 1, 2, 2]
     @test df._seq == [1, 2, 3, 1, 1, 2]
-    @test df._end == [false, false, true, true, false, true]
 
     df = df_diffT()
     @test_throws AssertionError spell!(df,:id,:t,:a)
     @test_broken df._spell == [1, 1, 1, 2, 2]
     @test_broken df._seq == [1, 2, 1, 1, 2]
-    @test_broken df._end == [false, false, true, false, true]
 end
