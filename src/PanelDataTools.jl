@@ -20,9 +20,6 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     gdf = groupby(df,PID)
     T = nrow(gdf[1])
 
-    strvar = String(var) # String of variable name
-    Lvar = Symbol("L"*strvar)
-    Fvar = Symbol("F"*strvar)
     Lvar = _lag(df,PID,TID,var)
     Fvar = _lead(df,PID,TID,var)
     Ltmp = (df[!,var] .== Lvar)
@@ -32,6 +29,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     df._seq = fill(1,nrow(df))
     df._end = fill(false,nrow(df))
 
+    # Find spells and sequence
     for i = collect(1:nrow(df))[Not(1:T:end)] # All rows except first one for each id
         if Ltmp[i] == true
             df[i,:_spell] = df[i-1,:_spell]
@@ -42,6 +40,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
         end
     end
 
+    # Find if it is the end of a spell
     for i = collect(1:nrow(df))[Not(T:T:end)]
         if isequal(Ftmp[i],false)
             df[i,:_end] = true
