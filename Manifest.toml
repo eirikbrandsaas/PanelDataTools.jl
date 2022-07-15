@@ -2,7 +2,12 @@
 
 julia_version = "1.8.0-rc1"
 manifest_format = "2.0"
-project_hash = "2279ad605b7a0d8635ff08800db0465fed3ed070"
+project_hash = "301d4f4481b3a78cb331591d403bf3636be47e9d"
+
+[[deps.ArgCheck]]
+git-tree-sha1 = "a3a402a35a2f7e0b87828ccabbd5ebfbebe356b4"
+uuid = "dce04be8-c92d-5529-be00-80e4d2c0e197"
+version = "2.3.0"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -160,6 +165,12 @@ version = "0.3.20+0"
 git-tree-sha1 = "85f8e6578bf1f9ee0d11e7bb1b1456435479d47c"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 version = "1.4.1"
+
+[[deps.PanelShift]]
+deps = ["ArgCheck", "DataFrames", "Dates", "Test"]
+git-tree-sha1 = "5f40a3d9a41c3b84ea9a0e88e7109d83512c7ea8"
+uuid = "d68e4d5e-4a60-4df1-b225-9a1636c75ae0"
+version = "0.1.1"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
