@@ -37,6 +37,9 @@ function df_diffT() # Checking whether package works with different T within pan
     df = DataFrame(id = [1,1,2,2,2], t = [1,2,1,2,3], a = [1,1,1,0,0])
 end
 
+function df_gapT() # Checking whether package works with different T within panel
+    df = DataFrame(id = [1,1,2,2,2], t = [1,3,1,2,3], a = [1,1,1,0,0])
+end
 
 function df_missid() # Checking whether package works with different T within panel
     df = DataFrame(id = [1,1,1,2,missing,2], t = [1,2,3,1,2,3], a = [1,1,1,1,0,0])
@@ -63,6 +66,10 @@ end
     df = df_missid()
     lag!(df,:id,:t,:a)
     @test isequal(df.L1a,[missing, 1, 1, missing, missing, missing])
+
+    df = df_gapT()
+    lag!(df,:id,:t,:a)
+    @test isequal(df.L1a, [missing,missing,missing,1,0])
 
     df = df_misst()
     @test_throws TypeError lag!(df,:id,:t,:a)
@@ -95,4 +102,9 @@ end
     spell!(df,:id,:t,:a)
     @test df._spell == [1, 1, 1, 2, 2]
     @test df._seq == [1, 2, 1, 1, 2]
+
+    df = df_gapT()
+    spell!(df,:id,:t,:a)
+    @test df._spell == [1, 2, 1, 2, 2]
+    @test df._seq == [1, 1, 1, 1, 2]
 end

@@ -29,7 +29,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
      # Find spells and sequence
      for i = 1:gdf.ngroups # Just loop over each sub-dataframe:
         for t = 2:T[i]
-            if gdf[i][t,var] == gdf[i][t,L1var]
+            if isequal(gdf[i][t,var], gdf[i][t,L1var])
                 gdf[i][t,:_spell] = gdf[i][t-1,:_spell]
                 gdf[i][t,:_seq] = gdf[i][t-1,:_seq]+1
             else
