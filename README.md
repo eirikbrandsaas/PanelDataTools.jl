@@ -11,20 +11,21 @@ df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])
 
 lag!(df,:id,:t,:a)
 lead!(df,:id,:t,:a)
+lead!(df,:id,:t,:a,2) # last argument is how many lags
 df
 ```
 will give you
 ```julia
-6×5 DataFrame
- Row │ id     t      a      La       Fa      
-     │ Int64  Int64  Int64  Int64?   Int64?  
-─────┼───────────────────────────────────────
-   1 │     1      1      0  missing        0
-   2 │     1      2      0        0        1
-   3 │     1      3      1        0  missing 
-   4 │     2      1      1  missing        1
-   5 │     2      2      1        1        0
-   6 │     2      3      0        1  missing 
+6×6 DataFrame
+ Row │ id     t      a      L1a      F1a      F2a     
+     │ Int64  Int64  Int64  Int64?   Int64?   Int64?  
+─────┼────────────────────────────────────────────────
+   1 │     1      1      0  missing        0        1
+   2 │     1      2      0        0        1  missing 
+   3 │     1      3      1        0  missing  missing 
+   4 │     2      1      1  missing        1        0
+   5 │     2      2      1        1        0  missing 
+   6 │     2      3      0        1  missing  missing 
 ```
 
 or to obtain spells as in `tsspell` in Stata:

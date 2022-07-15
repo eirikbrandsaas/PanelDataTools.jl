@@ -62,15 +62,25 @@ end
 
 
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol)
-    panellead!(df,PID,TID,var,"F"*String(var))
+    panellead!(df,PID,TID,var,"F1"*String(var),1)
     return nothing
 end
 
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n)
+    panellead!(df,PID,TID,var,"F$n"*String(var),n)
+    return nothing
+end
 
 function lag!(df,PID::Symbol,TID::Symbol,var::Symbol)
-    panellag!(df,PID,TID,var,"L"*String(var))
+    panellag!(df,PID,TID,var,"L1"*String(var),1)
     return nothing
 end
+
+function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n)
+    panellag!(df,PID,TID,var,"L$n"*String(var),n)
+    return nothing
+end
+
 
 export spell!, lead!, lag!
 export _lag, _lead

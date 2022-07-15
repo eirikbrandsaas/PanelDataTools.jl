@@ -37,13 +37,19 @@ end
 @testset "Basic lag!" begin
     df = test_df_simple1()
     lag!(df,:id,:t,:a)
-    @test isequal(df.La,[missing, 0, 0, missing, 1, 1])
+    @test isequal(df.L1a,[missing, 0, 0, missing, 1, 1])
+
+    lag!(df,:id,:t,:a,2)
+    @test isequal(df.L2a,[missing, missing, 0, missing, missing, 1])
 end
 
 @testset "Basic lead!" begin
     df = test_df_simple1()
     lead!(df,:id,:t,:a)
-    @test isequal(df.Fa,[0, 1, missing, 1, 0, missing])
+    @test isequal(df.F1a,[0, 1, missing, 1, 0, missing])
+
+    lead!(df,:id,:t,:a,2)
+    @test isequal(df.F2a,[1, missing, missing, 0, missing, missing])
 end
 
 @testset "Basic spell!" begin
