@@ -56,7 +56,7 @@ end
     lag!(df,:id,:t,:a,2)
     @test isequal(df.L2a,[missing, missing, 0, missing, missing, 1])
 
-    df = test_df_simple3()
+    df = df_diffT()
     lag!(df,:id,:t,:a)
     @test isequal(df.L1a,[missing, 1, missing, 1, 0])
 
