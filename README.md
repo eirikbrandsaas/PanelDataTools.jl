@@ -49,6 +49,11 @@ df
    5 │     2      2      1       1      2 
    6 │     2      3      0       2      1 
 ```
+## Relevant links and packages
+- [`GLM.jl`](https://github.com/JuliaStats/GLM.jl)
+- [`FixedEffectsModels.jl`](https://github.com/FixedEffects/FixedEffectModels.jl)
+- [`Econometrics.jl`](https://github.com/Nosferican/Econometrics.jl)
+- More? Please add other packages here.
 
 ## Next steps
 - Allow the user to specify names of new columns
