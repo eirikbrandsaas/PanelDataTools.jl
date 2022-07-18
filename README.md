@@ -56,13 +56,14 @@ df
 - More? Please add other packages here.
 
 ## Next steps
-- Allow the user to specify names of new columns
-- Add a new type `PanelDataFrame` (`PanelDataFrame`)that contains that, and also contains info on time gap (delta), length (T), individuals (N), name of the id and time variables. 
+- [ ] Allow the user to specify names of new columns
+- [ ] Add a new type `PanelDataFrame`. 
+  - Will have to wait untill metadata is added (https://github.com/JuliaData/DataFrames.jl/issues/2961)
+  - In addition to `df` or `gdf` it also contains info on time gap (delta), length (T), individuals (N), name of the id and time variables. 
   - Preferably this on also has a trigger for if the dataset is modified so that it is no longer sorted.
   - For all functions allow passing this object instead of a `DataFrame` so that the user doesn't have to specify the `:id` and the `:t` variables all the time. This should also turn of sorting checks and would allow for some optimizations?
 
 ### Later goals
-- Make the `spell` function faster
-- Allow for less stringent panels (i.e., with missing time, unequal length, and so on)
-- More functionality?
+- [x] Allow for less stringent panels (i.e., with missing time, unequal length, and so on)
+- [ ] More functionality?
 
