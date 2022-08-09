@@ -57,6 +57,8 @@ df
 
 ## Next steps
 - [ ] Allow the user to specify names of new columns
+- [ ] Allow the user to specify multiple columns to manipulate
+- [ ] Allow the user to specify multiple operations on the columns (e.g., generate first, second, and third lag in one operation)
 - [ ] Add a new type `PanelDataFrame`. 
   - Will have to wait untill metadata is added (https://github.com/JuliaData/DataFrames.jl/issues/2961)
   - In addition to `df` or `gdf` it also contains info on time gap (delta), length (T), individuals (N), name of the id and time variables. 
