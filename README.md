@@ -32,6 +32,11 @@ df
    5 │     2      2      1        1        0  missing 
    6 │     2      3      0        1  missing  missing 
 ```
+or as a one-liner specifying multiple lead lags:
+```julia
+lag!(df,:id,:t,:a,[-2,1,1]) # Or equivalently
+lead!(df,:id,:t,:a,[-1,1,2]) # Note that -1 is relative to the lead/lag operator
+```
 
 or to obtain spells as in `tsspell` in Stata:
 ```julia
@@ -58,8 +63,7 @@ df
 ## Next steps
 - [ ] Allow the user to specify names of new columns
 - [ ] Allow the user to specify multiple columns to manipulate
-- [ ] Allow the user to specify multiple operations on the columns (e.g., generate first, second, and third lag in one operation)
-- [ ] Add support for the commands to https://github.com/jmboehm/Douglass.jl
+- [x] Allow the user to specify multiple operations on the columns (e.g., generate first, second, and third lag in one operation)
 - [ ] Add a new type `PanelDataFrame`. 
   - Will have to wait untill metadata is added (https://github.com/JuliaData/DataFrames.jl/issues/2961)
   - In addition to `df` or `gdf` it also contains info on time gap (delta), length (T), individuals (N), name of the id and time variables. 
@@ -68,5 +72,6 @@ df
 
 ### Later goals
 - [x] Allow for less stringent panels (i.e., with missing time, unequal length, and so on)
-- [ ] More functionality?
+- More functionality?
+  - [ ] Add support for the commands to https://github.com/jmboehm/Douglass.jl
 

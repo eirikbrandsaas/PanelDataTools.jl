@@ -85,6 +85,44 @@ end
     @test isequal(df.F2a,[1, missing, missing, 0, missing, missing])
 end
 
+@testset "Multiple lead/lags" begin
+    ## Test that you get the same numbers
+    dfb = test_df_simple1()
+    lag!(dfb,:id,:t,:a)
+    lag!(dfb,:id,:t,:a,2)
+    lead!(dfb,:id,:t,:a)
+    lead!(dfb,:id,:t,:a,2)
+
+    df = test_df_simple1()
+    lag!(df,:id,:t,:a,[1,2,-1,-2])
+
+    for var in [:L1a :L2a :F1a :F2a]
+        @test isequal(df[!,var],dfb[!,var])
+    end
+    df = test_df_simple1()
+    lead!(df,:id,:t,:a,[1,2,-1,-2])
+
+    for var in [:L1a :L2a :F1a :F2a]
+        @test isequal(df[!,var],dfb[!,var])
+    end
+
+    ## Test that the "indexing" works as expected
+    dfb = test_df_simple1()
+    lag!(dfb,:id,:t,:a)
+    lag!(dfb,:id,:t,:a,2)
+    lead!(dfb,:id,:t,:a)
+    df = test_df_simple1()
+    lag!(df,:id,:t,:a,[1,2,-1])
+    for var in [:L1a :L2a :F1a]
+        @test isequal(df[!,var],dfb[!,var])
+    end
+    df = test_df_simple1()
+    lead!(df,:id,:t,:a,[-1,-2,1])
+    for var in [:L1a :L2a :F1a]
+        @test isequal(df[!,var],df[!,var])
+    end
+end
+
 @testset "Basic spell!" begin
     df = test_df_simple1()
     spell!(df,:id,:t,:a)
