@@ -43,8 +43,8 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 end
 
 ## Lags (fundamental)
-function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
-    panellag!(df,PID,TID,var,"L$n"*String(var),n)
+function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar="L$n"*String(var))
+    panellag!(df,PID,TID,var,nvar,n)
     return nothing
 end
 
@@ -66,8 +66,8 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 ## Leads. Call lags when feasible
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
-    panellead!(df,PID,TID,var,"F$n"*String(var),n)
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar="F$n"*String(var))
+    panellead!(df,PID,TID,var,nvar,n)
     return nothing
 end
 
@@ -86,7 +86,7 @@ end
 ## Seasonal Diffs.
 function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
     @assert n>0 "n (time shift) must be positive"
-    panellag!(df,PID,TID,var,"S$n"*String(var),n)
+    lag!(df,PID,TID,var,n;nvar="S$n"*String(var))
     df[!,"S$(n)"*String(var)] = df[!,var] - df[!,"S$(n)"*String(var)]
     return nothing
 end
@@ -103,7 +103,7 @@ function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
     @assert n>0 "n (time shift) must be positive"
     @assert n<=1 "diff! currently only supports first diff"
     if n == 1
-        panellag!(df,PID,TID,var,"D$n"*String(var),n)
+        lag!(df,PID,TID,var,n;nvar="D$n"*String(var))
         df[!,"D$(n)"*String(var)] = df[!,var] - df[!,"D$(n)"*String(var)]
     else
         throw("order $n differencs not supported")

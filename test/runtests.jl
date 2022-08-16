@@ -142,6 +142,31 @@ end
             @test isequal(df[!,var],df[!,var])
         end
     end
+
+    @testset "Multiple columns" begin
+        df = test_df_simple3var()
+        dfn = deepcopy(df)
+        lag!(df,:id,:t,:a,[-1,1])
+        lag!(df,:id,:t,:b,[-1,1])
+        lag!(df,:id,:t,:c,[-1,1])
+
+
+        lag!(dfn,:id,:t,[:a,:b,:c])
+        lead!(dfn,:id,:t,[:a,:b,:c])
+        for var in [:L1a, :L1b, :L1c, :F1a, :F1b, :F1c]
+            @test isequal(df[!,var],dfn[!,var])
+        end
+    end
+
+    @testset "New column names lead!/lag!" begin
+        df = test_df_simple1()
+        lag!(df,:id,:t,:a)
+        lag!(df,:id,:t,:a,1,nvar="lag_newname")
+        lead!(df,:id,:t,:a)
+        lead!(df,:id,:t,:a,1,nvar="lead_newname")
+        @test isequal(df[!,:L1a],df[!,:lag_newname])
+        @test isequal(df[!,:F1a],df[!,:lead_newname])
+    end
 end
 
 @testset "Basic spell!" begin
@@ -166,21 +191,6 @@ end
     spell!(df,:id,:t,:a)
     @test df._spell == [1, 2, 1, 2, 2]
     @test df._seq == [1, 1, 1, 1, 2]
-
-    @testset "Multiple columns" begin
-        df = test_df_simple3var()
-        dfn = deepcopy(df)
-        lag!(df,:id,:t,:a,[-1,1])
-        lag!(df,:id,:t,:b,[-1,1])
-        lag!(df,:id,:t,:c,[-1,1])
-
-
-        lag!(dfn,:id,:t,[:a,:b,:c])
-        lead!(dfn,:id,:t,[:a,:b,:c])
-        for var in [:L1a, :L1b, :L1c, :F1a, :F1b, :F1c]
-            @test isequal(df[!,var],dfn[!,var])
-        end
-    end
 end
 
 ## Diffs
