@@ -118,13 +118,6 @@ df
 - [`Douglass.jl`](https://github.com/jmboehm/Douglass.jl)
 - More? Please add other packages here.
 
-## Basic Next Steps
-- [x] Allow the user to specify names of new columns
-- [x] Implement differences (seasonal difference and first-differences)
-- [x] Allow the user to specify multiple columns to manipulate
-- [x] Allow the user to specify multiple operations on the columns (e.g., generate first, second, and third lag in one operation)
-- [ ] Add tests for non-integer time steps. (E.g., years, generic date formats)
-
 ## Secondary Features
 - [ ] Implement `tsfill` to fill in gaps in time variable
 - [ ] Implement `tsappend` to extend gaps in time variable
