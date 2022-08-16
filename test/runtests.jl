@@ -15,6 +15,24 @@ function test_df_simple1()
     df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])
 end
 
+function test_df_simple1_long()
+    #= Helper function that re-creates this Stata code:
+    input id t a
+    1 1 0
+    1 2 0
+    1 3 1
+    1 4 1
+    2 1 1
+    2 2 1
+    2 3 0
+    2 4 1
+    end
+    xtset id t
+    // =#
+
+    df = DataFrame(id = [1,1,1,1,2,2,2,2], t = repeat([1,2,3,4],2), a = [0,0,1,1,1,1,0,1])
+end
+
 function test_df_simple2()
     #= Helper function that re-creates this Stata code:
     input id t a
@@ -165,11 +183,43 @@ end
     end
 end
 
+## Diffs
+# @testset "Seasonal Diff tests" verbose = true begin
+    @testset "Basic" begin
+        df = test_df_simple1_long()
+        seasdiff!(df,:id,:t,:a)
+        seasdiff!(df,:id,:t,:a,2)
+        seasdiff!(df,:id,:t,:a,3)
+        @test isequal(df.S1a,[missing,0,1,0,missing,0,-1,1])
+        @test isequal(df.S2a,[missing, missing, 1, 1, missing, missing, -1,0])
+        @test isequal(df.S3a,[missing, missing, missing, 1, missing, missing, missing,0])
+
+        df = test_df_simple2()
+        seasdiff!(df,:id,:t,:a,[1,2])
+        @test isequal(df.S1a,[missing, 0, 0, missing,-1,0])
+        @test isequal(df.S2a,[missing, missing, 0, missing,missing,-1])
+
+        @test_throws AssertionError seasdiff!(df,:id,:t,:a,0)
+    end
+# end
+
+# @testset "Diff tests" verbose = true begin
+    @testset "Basic" begin
+        df = test_df_simple1_long()
+        diff!(df,:id,:t,:a)
+        @test_throws AssertionError diff!(df,:id,:t,:a,2)
+        @test_throws AssertionError diff!(df,:id,:t,:a,3)
+        @test isequal(df.D1a,[missing,0,1,0,missing,0,-1,1])
+        @test_broken isequal(df.D2a,[missing, missing, 1,-1, missing, missing, -1,2])
+        @test_broken isequal(df.D3a,[missing, missing, missing,-2, missing, missing, missing,3])
+
+    end
+# end
 
 
 ## Small test for github issues
 @testset "Issue tests" verbose = true begin
-    @testset "Issue #4 - had wrong column name in spell!() " begin
+    @testset "Issue #4 - column names in spell!() " begin
         df = DataFrame(i=[1,1,2,2],year=[1,2,1,2],val=[1,1,1,1])
         spell!(df,:i,:year,:val)
         @test df._spell == [1, 1, 1, 1]

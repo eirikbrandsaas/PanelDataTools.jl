@@ -42,6 +42,24 @@ or of multiple variables all at once:
 ```julia
 lag!(df,:id,:t,[:a,:b,:c],2)
 ```
+There is also support for "seasonal" and difference operators
+```julia
+df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [1,1,1,1,0,0])
+diff!(df,:id,:t,:a,1)
+seasdiff!(df,:id,:t,:a,1)
+seasdiff!(df,:id,:t,:a,2)
+df
+ Row │ id     t      a      D1a      S1a      S2a     
+     │ Int64  Int64  Int64  Int64?   Int64?   Int64?  
+─────┼────────────────────────────────────────────────
+   1 │     1      1      1  missing  missing  missing 
+   2 │     1      2      1        0        0  missing 
+   3 │     1      3      1        0        0        0
+   4 │     2      1      1  missing  missing  missing 
+   5 │     2      2      0       -1       -1  missing 
+   6 │     2      3      0        0        0       -1
+```
+
 
 ### Spells (identifying spells)
 or to obtain spells as in `tsspell` in Stata:
@@ -67,12 +85,18 @@ df
 - [`Douglass.jl`](https://github.com/jmboehm/Douglass.jl)
 - More? Please add other packages here.
 
-## Next steps
+## Basic Next Steps
 - [ ] Allow the user to specify names of new columns
-- [ ] Implement differences
+- [x] Implement differences (seasonal difference and first-differences)
 - [x] Allow the user to specify multiple columns to manipulate
 - [x] Allow the user to specify multiple operations on the columns (e.g., generate first, second, and third lag in one operation)
 - [ ] Add tests for non-integer time steps. (E.g., years, generic date formats)
+
+## Secondary Features
+- [ ] Implement `tsfill` to fill in gaps in time variable
+- [ ] Implement `tsappend` to extend gaps in time variable
+- [ ] Other Features?
+## Big Picture
 - [ ] Add a new type `PanelDataFrame`. 
   - Will have to wait untill metadata is added (https://github.com/JuliaData/DataFrames.jl/issues/2961)
   - In addition to `df` or `gdf` it also contains info on time gap (delta), length (T), individuals (N), name of the id and time variables. 

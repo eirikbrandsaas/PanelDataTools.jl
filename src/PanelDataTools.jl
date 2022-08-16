@@ -83,6 +83,34 @@ function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     return nothing
 end
 
+## Seasonal Diffs.
+function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
+    @assert n>0 "n (time shift) must be positive"
+    panellag!(df,PID,TID,var,"S$n"*String(var),n)
+    df[!,"S$(n)"*String(var)] = df[!,var] - df[!,"S$(n)"*String(var)]
+    return nothing
+end
 
-export spell!, lead!, lag!
+function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
+    for n in ns
+        seasdiff!(df,PID,TID,var,n)
+    end
+    return nothing
+end
+
+## Diffs.
+function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
+    @assert n>0 "n (time shift) must be positive"
+    @assert n<=1 "diff! currently only supports first diff"
+    if n == 1
+        panellag!(df,PID,TID,var,"D$n"*String(var),n)
+        df[!,"D$(n)"*String(var)] = df[!,var] - df[!,"D$(n)"*String(var)]
+    else
+        throw("order $n differencs not supported")
+    end
+    return nothing
+end
+
+
+export spell!, lead!, lag!, seasdiff!, diff!
 end
