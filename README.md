@@ -12,6 +12,7 @@ From the original announcement of the `tsspell` package:
 > [*Nick Cox on StataList*](https://www.stata.com/statalist/archive/2002-08/msg00279.html)
 
 ## Quick Start
+### Shifts: Leads and Lags
 Easily create leads, lags, and spells from panels:
 ```julia
 using PanelDataTools, DataFrames
@@ -34,10 +35,11 @@ df
 ```
 or as a one-liner specifying multiple lead lags:
 ```julia
-lag!(df,:id,:t,:a,[-2,1,1]) # Or equivalently
-lead!(df,:id,:t,:a,[-1,1,2]) # Note that -1 is relative to the lead/lag operator
+lag!(df,:id,:t,:a,[-2,-1,1]) # -2 and -1 becomes leads
+lead!(df,:id,:t,:a,[-1,1,2]) # -1 becomes a lag
 ```
 
+### Spells (identifying spells)
 or to obtain spells as in `tsspell` in Stata:
 ```julia
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])

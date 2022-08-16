@@ -42,21 +42,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     return nothing
 end
 
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol)
-    panellead!(df,PID,TID,var,"F1"*String(var),1)
-    return nothing
-end
-
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n)
-    panellead!(df,PID,TID,var,"F$n"*String(var),n)
-    return nothing
-end
-
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
-    lag!(df,PID,TID,var,-ns)
-    return nothing
-end
-
+## Lags (fundamental)
 function lag!(df,PID::Symbol,TID::Symbol,var::Symbol)
     panellag!(df,PID,TID,var,"L1"*String(var),1)
     return nothing
@@ -77,8 +63,22 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     return nothing
 end
 
+## Leads. Call lags when feasible
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol)
+    panellead!(df,PID,TID,var,"F1"*String(var),1)
+    return nothing
+end
+
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n)
+    panellead!(df,PID,TID,var,"F$n"*String(var),n)
+    return nothing
+end
+
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
+    lag!(df,PID,TID,var,-ns)
+    return nothing
+end
+
 
 export spell!, lead!, lag!
-export _lag, _lead
-
 end
