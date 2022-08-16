@@ -43,8 +43,8 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 end
 
 ## Lags (fundamental)
-function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar="L$n"*String(var))
-    panellag!(df,PID,TID,var,nvar,n)
+function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="L$n"*String(var))
+    panellag!(df,PID,TID,var,name,n)
     return nothing
 end
 
@@ -66,8 +66,8 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 ## Leads. Call lags when feasible
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar="F$n"*String(var))
-    panellead!(df,PID,TID,var,nvar,n)
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="F$n"*String(var))
+    panellead!(df,PID,TID,var,name,n)
     return nothing
 end
 
@@ -84,11 +84,11 @@ function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 ## Seasonal Diffs.
-function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar = "S$n"*String(var))
+function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "S$n"*String(var))
     @assert n>0 "n (time shift) must be positive"
 
-    lag!(df,PID,TID,var,n;nvar=nvar)
-    df[!,nvar] = df[!,var] - df[!,nvar]
+    lag!(df,PID,TID,var,n;name=name)
+    df[!,name] = df[!,var] - df[!,name]
     return nothing
 end
 
@@ -100,12 +100,12 @@ function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 ## Diffs.
-function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar = "D$n"*String(var))
+function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "D$n"*String(var))
     @assert n>0 "n (time shift) must be positive"
     @assert n<=1 "diff! currently only supports first diff"
     if n == 1
-        lag!(df,PID,TID,var,n;nvar=nvar)
-        df[!,nvar] = df[!,var] - df[!,nvar]
+        lag!(df,PID,TID,var,n;name=name)
+        df[!,name] = df[!,var] - df[!,name]
     else
         throw("order $n differencs not supported")
     end

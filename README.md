@@ -60,6 +60,12 @@ df
    6 │     2      3      0        0        0       -1
 ```
 
+You can also create new variable names by adding the `name="FancyName"` keyword argument:
+```julia
+lag!(df,:id,:t,:a,name="FancyName")
+```
+Note that this only works operating over a single column. 
+
 
 ### Spells (identifying spells)
 or to obtain spells as in `tsspell` in Stata:
@@ -86,7 +92,7 @@ df
 - More? Please add other packages here.
 
 ## Basic Next Steps
-- [ ] Allow the user to specify names of new columns
+- [x] Allow the user to specify names of new columns
 - [x] Implement differences (seasonal difference and first-differences)
 - [x] Allow the user to specify multiple columns to manipulate
 - [x] Allow the user to specify multiple operations on the columns (e.g., generate first, second, and third lag in one operation)

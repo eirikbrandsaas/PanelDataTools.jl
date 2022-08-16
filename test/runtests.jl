@@ -161,9 +161,9 @@ end
     @testset "New column names lead!/lag!" begin
         df = test_df_simple1()
         lag!(df,:id,:t,:a)
-        lag!(df,:id,:t,:a,1,nvar="lag_newname")
+        lag!(df,:id,:t,:a,1,name="lag_newname")
         lead!(df,:id,:t,:a)
-        lead!(df,:id,:t,:a,1,nvar="lead_newname")
+        lead!(df,:id,:t,:a,1,name="lead_newname")
         @test isequal(df[!,:L1a],df[!,:lag_newname])
         @test isequal(df[!,:F1a],df[!,:lead_newname])
     end
@@ -213,7 +213,7 @@ end
 
         df = test_df_simple1_long()
         seasdiff!(df,:id,:t,:a)
-        seasdiff!(df,:id,:t,:a;nvar="customname")
+        seasdiff!(df,:id,:t,:a;name="customname")
         @test isequal(df[!,:S1a],df[!,:customname])
     end
 # end
@@ -230,7 +230,7 @@ end
 
         df = test_df_simple1_long()
         diff!(df,:id,:t,:a)
-        diff!(df,:id,:t,:a;nvar="customname")
+        diff!(df,:id,:t,:a;name="customname")
         @test isequal(df[!,:D1a],df[!,:customname])
 
     end
