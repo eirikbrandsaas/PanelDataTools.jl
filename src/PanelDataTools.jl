@@ -43,12 +43,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 end
 
 ## Lags (fundamental)
-function lag!(df,PID::Symbol,TID::Symbol,var::Symbol)
-    panellag!(df,PID,TID,var,"L1"*String(var),1)
-    return nothing
-end
-
-function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n)
+function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
     panellag!(df,PID,TID,var,"L$n"*String(var),n)
     return nothing
 end
@@ -64,12 +59,7 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 ## Leads. Call lags when feasible
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol)
-    panellead!(df,PID,TID,var,"F1"*String(var),1)
-    return nothing
-end
-
-function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n)
+function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
     panellead!(df,PID,TID,var,"F$n"*String(var),n)
     return nothing
 end
