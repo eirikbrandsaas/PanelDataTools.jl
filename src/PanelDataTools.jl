@@ -43,16 +43,17 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     return nothing
 end
 
-## Lags (fundamental)
-function prettyname!(name,t,n,var)
-    if isa(t,TimeType)
-        name="L$(n.value)"*String(var)
+# Lags (fundamental)
+function prettyname(name,t,n,var,prefix)
+    if isa(t,TimeType)==true
+        name=prefix*"$(n.value)"*String(var)
     end
+    return name
 end
 
 function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name="L$n"*String(var))
-    if name=="L$n"*String(var)
-        name=prettyname!(name,df[1, TID],n,var)
+    if name=="L$n"*String(var) # Only do it passed default name
+        name = prettyname(name,df[1, TID],n,var,"L")
     end
     panellag!(df,PID,TID,var,name,n)
     return nothing
@@ -77,6 +78,9 @@ end
 
 ## Leads. Call lags when feasible
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="F$n"*String(var))
+    if name=="F$n"*String(var)
+        name = prettyname(name,df[1, TID],n,var,"F")
+    end
     panellead!(df,PID,TID,var,name,n)
     return nothing
 end

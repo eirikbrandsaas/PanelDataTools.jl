@@ -52,6 +52,15 @@ function test_df_simple3var()
      b = rand(6), c = rand(6))
 end
 
+function test_df_date()
+    df = DataFrame(id = [1,1,2,2], t = [Date(2000),Date(2001),Date(2000),Date(2000,1,2)], a = [1,1,0,1])
+end
+
+function test_df_datetime()
+    df = DataFrame(id = [1,1,1,2,2,2], t = repeat([DateTime(2000,1,1,1,1,1,1),DateTime(2000,1,1,1,1,1,2),DateTime(2001,1,1,1,1,1,1)],2), a = [1,1,0,0,1,1])
+end
+
+
 
 
 function df_diffT() # Checking whether package works with different T within panel
@@ -249,31 +258,29 @@ end
 end
 
 ## Testing dates
-using PanelDataTools,DataFrames,Dates
-using Dates
-df = DataFrame(id=fill(1,4),
-    t=[Date(2000,1,1),Date(2000,1,2),Date(2000,2,1),Date(2001,1,1)],
-    a=[0,1,1,1],
-    )
+@testset "Dates" verbose = true begin
+    @testset "Date()" begin
+        df = test_df_date()
+        lag!(df,:id,:t,:a,Day(1))
+        @test isequal(df[!,:L1a],[missing,missing,missing,0])
+        lag!(df,:id,:t,:a,Month(1))
+        @test isequal(df[!,:L1a],[missing,missing,missing,missing])
+        lag!(df,:id,:t,:a,Year(1))
+        @test isequal(df[!,:L1a],[missing,1,missing,missing])
+        lag!(df,:id,:t,:a,Month(12))
+        @test isequal(df[!,:L12a],[missing,1,missing,missing])
 
-lag!(df,:id,:t,:a,Day(1),name="L_Day_1")
-lag!(df,:id,:t,:a,Month(1),name="L_Month_1")
-lag!(df,:id,:t,:a,Year(1),name="Year_1")
-display(df)
+        lead!(df,:id,:t,:a,Year(1))
+        @test isequal(df[!,:F1a],[1,missing,missing,missing])
+    end
+    @testset "DateTime()" begin
+        df = test_df_datetime()
+        lag!(df,:id,:t,:a,Millisecond(1))
+        @test isequal(df[!,:L1a],[missing,1,missing,missing,0,missing])
+        lag!(df,:id,:t,:a,Year(1))
+        @test isequal(df[!,:L1a],[missing,missing,1,missing,missing,0])
+        lead!(df,:id,:t,:a,Year(1))
+        @test isequal(df[!,:F1a],[0,missing,missing,1,missing,missing])
+    end
 
-##
-
-df = DataFrame(id=fill(1,4),
-    t=sort!([Date(2000,1,1),Date(2000,1,2),Date(2000,2,1),Date(2001,1,1)]),
-    a=[0,1,1,1])
-
-lag!(df,:id,:t,:a,Day(1))
-@test isequal(df[!,:L1a],[missing,0,missing,missing])
-lag!(df,:id,:t,:a,Month(1))
-@test isequal(df[!,:L1a],[missing,missing,0,missing])
-lag!(df,:id,:t,:a,Year(1))
-@test isequal(df[!,:L1a],[missing,missing,missing,0])
-##
-
-@test equalormi(tlag([Date(2000,1,1), Date(2000, 1,2), Date(2000,1, 4)], [1,2,3], Day(1)), [missing; 1; missing])
-@test equalormi(tlag([Date(2000,1,1), Date(2000, 1,2), Date(2000,1, 4)], [1,2,3], Day(2)), [missing; missing; 2])
+end
