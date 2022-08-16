@@ -12,8 +12,32 @@ From the original announcement of the `tsspell` package:
 > [*Nick Cox on StataList*](https://www.stata.com/statalist/archive/2002-08/msg00279.html)
 
 ## Quick Start
+
+### Working with Dates/Time:
+The default time gap ("Delta") is 1 oneunit as determined by `oneunit()`. For `Int`, `Date`, and `DateTime` this defaults to `1`, `1 day`, and `1 millisecond`, respectively. If these are not the gaps you want, you must specify the correct gaps. 
+```julia
+using PanelDataTools,DataFrames,Dates
+using Dates
+df = DataFrame(id=fill(1,4),
+    t=[Date(2000,1,1),Date(2000,1,2),Date(2000,2,1),Date(2001,1,1)],
+    a=[0,1,1,1],
+    )
+
+lag!(df,:id,:t,:a,Day(1),name="L(Day=1)")
+lag!(df,:id,:t,:a,Month(1),name="L(Month=1)")
+lag!(df,:id,:t,:a,Day(366),name="L(Day=366)") # 366 days = one year (2000 was a leap year)
+lag!(df,:id,:t,:a,Month(12),name="L(Month=12)") # 12 months = one year
+lag!(df,:id,:t,:a,Year(1),name="L(Year=1)")
+ Row │ id     t           a      L_Day_1  L_Month_1  Year_1  
+     │ Int64  Date        Int64  Int64?   Int64?     Int64?  
+─────┼───────────────────────────────────────────────────────
+   1 │     1  2000-01-01      0  missing    missing  missing 
+   2 │     1  2000-01-02      1        0    missing  missing 
+   3 │     1  2000-02-01      1  missing          0  missing 
+   4 │     1  2001-01-01      1  missing    missing        0
+```
 ### Shifts: Leads and Lags
-Easily create leads, lags, and spells from panels:
+Easily create leads, lags, diffs, and seasonal diffs from panels:
 ```julia
 using PanelDataTools, DataFrames
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])

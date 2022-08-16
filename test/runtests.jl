@@ -1,6 +1,7 @@
 using PanelDataTools
 using Test
 using DataFrames
+using Dates
 
 function test_df_simple1()
     #= Helper function that re-creates this Stata code:
@@ -246,3 +247,33 @@ end
         @test df._spell == [1, 1, 1, 1]
     end
 end
+
+## Testing dates
+using PanelDataTools,DataFrames,Dates
+using Dates
+df = DataFrame(id=fill(1,4),
+    t=[Date(2000,1,1),Date(2000,1,2),Date(2000,2,1),Date(2001,1,1)],
+    a=[0,1,1,1],
+    )
+
+lag!(df,:id,:t,:a,Day(1),name="L_Day_1")
+lag!(df,:id,:t,:a,Month(1),name="L_Month_1")
+lag!(df,:id,:t,:a,Year(1),name="Year_1")
+display(df)
+
+##
+
+df = DataFrame(id=fill(1,4),
+    t=sort!([Date(2000,1,1),Date(2000,1,2),Date(2000,2,1),Date(2001,1,1)]),
+    a=[0,1,1,1])
+
+lag!(df,:id,:t,:a,Day(1))
+@test isequal(df[!,:L1a],[missing,0,missing,missing])
+lag!(df,:id,:t,:a,Month(1))
+@test isequal(df[!,:L1a],[missing,missing,0,missing])
+lag!(df,:id,:t,:a,Year(1))
+@test isequal(df[!,:L1a],[missing,missing,missing,0])
+##
+
+@test equalormi(tlag([Date(2000,1,1), Date(2000, 1,2), Date(2000,1, 4)], [1,2,3], Day(1)), [missing; 1; missing])
+@test equalormi(tlag([Date(2000,1,1), Date(2000, 1,2), Date(2000,1, 4)], [1,2,3], Day(2)), [missing; missing; 2])

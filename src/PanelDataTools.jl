@@ -4,6 +4,7 @@ module PanelDataTools
 using DataFrames
 using ShiftedArrays
 using PanelShift
+using Dates
 
 
 function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
@@ -43,7 +44,16 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 end
 
 ## Lags (fundamental)
-function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="L$n"*String(var))
+function prettyname!(name,t,n,var)
+    if isa(t,TimeType)
+        name="L$(n.value)"*String(var)
+    end
+end
+
+function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name="L$n"*String(var))
+    if name=="L$n"*String(var)
+        name=prettyname!(name,df[1, TID],n,var)
+    end
     panellag!(df,PID,TID,var,name,n)
     return nothing
 end
