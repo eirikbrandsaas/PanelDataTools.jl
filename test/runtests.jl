@@ -2,10 +2,6 @@ using PanelDataTools
 using Test
 using DataFrames
 
-@testset "PanelDataTools.jl" begin
-    # Write your tests here.
-end
-
 function test_df_simple1()
     #= Helper function that re-creates this Stata code:
     input id t a
@@ -152,20 +148,24 @@ end
     spell!(df,:id,:t,:a)
     @test df._spell == [1, 2, 1, 2, 2]
     @test df._seq == [1, 1, 1, 1, 2]
+
+    @testset "Multiple columns" begin
+        df = test_df_simple3var()
+        dfn = deepcopy(df)
+        lag!(df,:id,:t,:a,[-1,1])
+        lag!(df,:id,:t,:b,[-1,1])
+        lag!(df,:id,:t,:c,[-1,1])
+
+
+        lag!(dfn,:id,:t,[:a,:b,:c])
+        lead!(dfn,:id,:t,[:a,:b,:c])
+        for var in [:L1a, :L1b, :L1c, :F1a, :F1b, :F1c]
+            @test isequal(df[!,var],dfn[!,var])
+        end
+    end
 end
 
-# @testset "Multiple columns" begin
-#     df = test_df_simple3var()
-#     lag!(df,:id,:t,:a)
-#     lag!(df,:id,:t,:b)
-#     lag!(df,:id,:t,:c)
 
-#     dfn = test_df_simple3var()
-#     lag!(dfn,:id,:t,[:a,:b,:c])
-#     for var in [:F1a, :F1b, :F1c]
-#         @test_ isequal(df[!,var],dfn[!,var])
-#     end
-# end
 
 ## Small test for github issues
 @testset "Issue tests" verbose = true begin

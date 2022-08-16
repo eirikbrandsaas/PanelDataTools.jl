@@ -48,6 +48,13 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
     return nothing
 end
 
+function lag!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TID]))
+    for var in vars
+        panellag!(df,PID,TID,var,"L$n"*String(var),n)
+    end
+    return nothing
+end
+
 function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     for n in ns[ns.>0]
         lag!(df,PID,TID,var,n)
@@ -61,6 +68,13 @@ end
 ## Leads. Call lags when feasible
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
     panellead!(df,PID,TID,var,"F$n"*String(var),n)
+    return nothing
+end
+
+function lead!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TID]))
+    for var in vars
+        panellead!(df,PID,TID,var,"F$n"*String(var),n)
+    end
     return nothing
 end
 
