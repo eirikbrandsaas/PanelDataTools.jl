@@ -222,10 +222,10 @@ end
     @testset "Basic" begin
         df = test_df_simple1_long()
         diff!(df,:id,:t,:a)
-        @test_throws AssertionError diff!(df,:id,:t,:a,2)
+        diff!(df,:id,:t,:a,2)
         @test_throws AssertionError diff!(df,:id,:t,:a,3)
         @test isequal(df.D1a,[missing,0,1,0,missing,0,-1,1])
-        @test_broken isequal(df.D2a,[missing, missing, 1,-1, missing, missing, -1,2])
+        @test isequal(df.D2a,[missing, missing, 1,-1, missing, missing, -1,2])
         @test_broken isequal(df.D3a,[missing, missing, missing,-2, missing, missing, missing,3])
 
         df = test_df_simple1_long()
