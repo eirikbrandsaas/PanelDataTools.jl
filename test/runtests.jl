@@ -32,6 +32,12 @@ function test_df_simple2()
     df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [1,1,1,1,0,0])
 end
 
+function test_df_simple3var()
+    df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0],
+     b = rand(6), c = rand(6))
+end
+
+
 
 function df_diffT() # Checking whether package works with different T within panel
     df = DataFrame(id = [1,1,2,2,2], t = [1,2,1,2,3], a = [1,1,1,0,0])
@@ -148,6 +154,18 @@ end
     @test df._seq == [1, 1, 1, 1, 2]
 end
 
+# @testset "Multiple columns" begin
+#     df = test_df_simple3var()
+#     lag!(df,:id,:t,:a)
+#     lag!(df,:id,:t,:b)
+#     lag!(df,:id,:t,:c)
+
+#     dfn = test_df_simple3var()
+#     lag!(dfn,:id,:t,[:a,:b,:c])
+#     for var in [:F1a, :F1b, :F1c]
+#         @test_ isequal(df[!,var],dfn[!,var])
+#     end
+# end
 
 ## Small test for github issues
 @testset "Issue tests" verbose = true begin
