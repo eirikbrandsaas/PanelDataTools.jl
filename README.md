@@ -64,10 +64,12 @@ df
 - [`GLM.jl`](https://github.com/JuliaStats/GLM.jl)
 - [`FixedEffectsModels.jl`](https://github.com/FixedEffects/FixedEffectModels.jl)
 - [`Econometrics.jl`](https://github.com/Nosferican/Econometrics.jl)
+- [`Douglass.jl`](https://github.com/jmboehm/Douglass.jl)
 - More? Please add other packages here.
 
 ## Next steps
 - [ ] Allow the user to specify names of new columns
+- [ ] Implement differences
 - [x] Allow the user to specify multiple columns to manipulate
 - [x] Allow the user to specify multiple operations on the columns (e.g., generate first, second, and third lag in one operation)
 - [ ] Add tests for non-integer time steps. (E.g., years, generic date formats)
