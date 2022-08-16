@@ -50,7 +50,7 @@ end
 
 function lag!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TID]))
     for var in vars
-        panellag!(df,PID,TID,var,"L$n"*String(var),n)
+        lag!(df,PID,TID,var,name="L$n"*String(var),n)
     end
     return nothing
 end
@@ -73,7 +73,7 @@ end
 
 function lead!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TID]))
     for var in vars
-        panellead!(df,PID,TID,var,"F$n"*String(var),n)
+        lead!(df,PID,TID,var,name="F$n"*String(var),n)
     end
     return nothing
 end
