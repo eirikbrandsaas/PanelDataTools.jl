@@ -102,21 +102,18 @@ end
 ## Diffs.
 function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "D$n"*String(var))
     @assert n>0 "n (time shift) must be positive"
-    @assert n<=2 "diff! currently only supports first and secord order diffs"
     if n == 1
         lag!(df,PID,TID,var,n;name=name)
         df[!,name] = df[!,var] - df[!,name]
-    elseif n == 2
-        tmp_name = "___tmpD1" # Need a temporary variable
+    elseif n > 1
+        tmp_name = "___tmpD$n" # Need a temporary variable
         @assert (tmp_name ∈ names(df)) == false "Variable $(tmp_name) already exists"
 
-        diff!(df,PID,TID,var,1;name=tmp_name)
+        diff!(df,PID,TID,var,n-1;name=tmp_name)
         lag!(df,PID,TID,Symbol(tmp_name),1;name=name)
 
         df[!,name] = df[!,tmp_name]-df[!,name]
         select!(df,Not(tmp_name))
-    else
-        throw("order $n differencs not supported")
     end
     return nothing
 end

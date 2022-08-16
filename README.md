@@ -46,18 +46,19 @@ There is also support for "seasonal" and difference operators
 ```julia
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [1,1,1,1,0,0])
 diff!(df,:id,:t,:a,1)
+diff!(df,:id,:t,:a,2)
 seasdiff!(df,:id,:t,:a,1)
 seasdiff!(df,:id,:t,:a,2)
 df
- Row │ id     t      a      D1a      S1a      S2a     
-     │ Int64  Int64  Int64  Int64?   Int64?   Int64?  
-─────┼────────────────────────────────────────────────
-   1 │     1      1      1  missing  missing  missing 
-   2 │     1      2      1        0        0  missing 
-   3 │     1      3      1        0        0        0
-   4 │     2      1      1  missing  missing  missing 
-   5 │     2      2      0       -1       -1  missing 
-   6 │     2      3      0        0        0       -1
+ Row │ id     t      a      D1a      D2a      S1a      S2a     
+     │ Int64  Int64  Int64  Int64?   Int64?   Int64?   Int64?  
+─────┼─────────────────────────────────────────────────────────
+   1 │     1      1      1  missing  missing  missing  missing 
+   2 │     1      2      1        0  missing        0  missing 
+   3 │     1      3      1        0        0        0        0
+   4 │     2      1      1  missing  missing  missing  missing 
+   5 │     2      2      0       -1  missing       -1  missing 
+   6 │     2      3      0        0        1        0       -1
 ```
 
 You can also create new variable names by adding the `name="FancyName"` keyword argument:
