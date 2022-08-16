@@ -84,10 +84,11 @@ function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 ## Seasonal Diffs.
-function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
+function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar = "S$n"*String(var))
     @assert n>0 "n (time shift) must be positive"
-    lag!(df,PID,TID,var,n;nvar="S$n"*String(var))
-    df[!,"S$(n)"*String(var)] = df[!,var] - df[!,"S$(n)"*String(var)]
+
+    lag!(df,PID,TID,var,n;nvar=nvar)
+    df[!,nvar] = df[!,var] - df[!,nvar]
     return nothing
 end
 
@@ -99,12 +100,12 @@ function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 ## Diffs.
-function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]))
+function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);nvar = "D$n"*String(var))
     @assert n>0 "n (time shift) must be positive"
     @assert n<=1 "diff! currently only supports first diff"
     if n == 1
-        lag!(df,PID,TID,var,n;nvar="D$n"*String(var))
-        df[!,"D$(n)"*String(var)] = df[!,var] - df[!,"D$(n)"*String(var)]
+        lag!(df,PID,TID,var,n;nvar=nvar)
+        df[!,nvar] = df[!,var] - df[!,nvar]
     else
         throw("order $n differencs not supported")
     end

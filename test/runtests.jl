@@ -210,6 +210,11 @@ end
         @test isequal(df.S2a,[missing, missing, 0, missing,missing,-1])
 
         @test_throws AssertionError seasdiff!(df,:id,:t,:a,0)
+
+        df = test_df_simple1_long()
+        seasdiff!(df,:id,:t,:a)
+        seasdiff!(df,:id,:t,:a;nvar="customname")
+        @test isequal(df[!,:S1a],df[!,:customname])
     end
 # end
 
@@ -222,6 +227,11 @@ end
         @test isequal(df.D1a,[missing,0,1,0,missing,0,-1,1])
         @test_broken isequal(df.D2a,[missing, missing, 1,-1, missing, missing, -1,2])
         @test_broken isequal(df.D3a,[missing, missing, missing,-2, missing, missing, missing,3])
+
+        df = test_df_simple1_long()
+        diff!(df,:id,:t,:a)
+        diff!(df,:id,:t,:a;nvar="customname")
+        @test isequal(df[!,:D1a],df[!,:customname])
 
     end
 # end
