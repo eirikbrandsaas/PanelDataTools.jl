@@ -103,7 +103,10 @@ end
 
         df = df_misst()
         @test_throws TypeError lag!(df,:id,:t,:a)
-        @test_broken isequal(df.L1a,[missing, 1, 1, missing, missing, missing])
+        @test_broken isequal(df.L1a,[missing, missing, missing, missing, 1, 0])
+        df.t = replace(df.t,missing=>NaN)
+        lag!(df,:id,:t,:a)
+        @test isequal(df[!,"L1.0a"],[missing, missing, missing, missing, 1, 0])
     end
 
     @testset "Basic lead!" begin
