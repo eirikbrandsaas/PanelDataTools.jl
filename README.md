@@ -29,14 +29,14 @@ lag!(df,:id,:t,:a,Month(1),name="L(Month=1)")
 lag!(df,:id,:t,:a,Day(366),name="L(Day=366)") # 366 days = one year (2000 was a leap year)
 lag!(df,:id,:t,:a,Month(12),name="L(Month=12)") # 12 months = one year
 lag!(df,:id,:t,:a,Year(1),name="L(Year=1)")
- Row │ id     t           a      L(Day=1)  L(Month=1)  L(Day=366)  L(Month=12)  L(Year=1) 
-     │ Int64  Date        Int64  Int64?    Int64?      Int64?      Int64?       Int64?    
-─────┼────────────────────────────────────────────────────────────────────────────────────
-   1 │     1  2000-01-01      0   missing     missing     missing      missing    missing 
-   2 │     1  2000-01-02      1         0     missing     missing      missing    missing 
-   3 │     1  2000-02-01      1   missing           0     missing      missing    missing 
-   4 │     1  2001-01-01      1   missing     missing           0            0          0
-
+lag!(df,:id,:t,:a) # Default (picks time gap of 1 and names the column "L1a")
+  Row │ id     t           a      L(Day=1)  L(Month=1)  L(Day=366)  L(Month=12)  L(Year=1)  L1a     
+     │ Int64  Date        Int64  Int64?    Int64?      Int64?      Int64?       Int64?     Int64?  
+─────┼─────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     1  2000-01-01      0   missing     missing     missing      missing    missing  missing 
+   2 │     1  2000-01-02      1         0     missing     missing      missing    missing        0
+   3 │     1  2000-02-01      1   missing           0     missing      missing    missing  missing 
+   4 │     1  2001-01-01      1   missing     missing           0            0          0  missing 
 ```
 ### Shifts: Leads and Lags
 Easily create leads, lags, diffs, and seasonal diffs from panels:
@@ -59,16 +59,15 @@ df
    5 │     2      2      1        1        0  missing 
    6 │     2      3      0        1  missing  missing 
 ```
-or as a one-liner specifying multiple lead lags:
+or as a one-liner specifying multiple lead lags OR multiplate variables at a specific shift:
 ```julia
-lag!(df,:id,:t,:a,[-2,-1,1]) # -2 and -1 becomes leads
+lag!(df,:id,:t,:a,[-2,-1,1]) # -2 and -1 becomes leads of a
 lead!(df,:id,:t,:a,[-1,1,2]) # -1 becomes a lag
+lag!(df,:id,:t,[:a,:b,:c],2) # Find lags of a,b, and c
 ```
-or of multiple variables all at once:
-```julia
-lag!(df,:id,:t,[:a,:b,:c],2)
-```
-There is also support for "seasonal" and difference operators
+
+### Differences
+There is also support for "seasonal" and difference operators mimicking Stata's `S.x` and `D.x` syntax:
 ```julia
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [1,1,1,1,0,0])
 diff!(df,:id,:t,:a,1)
@@ -86,7 +85,7 @@ df
    5 │     2      2      0       -1  missing       -1  missing 
    6 │     2      3      0        0        1        0       -1
 ```
-
+### Provide Names
 You can also create new variable names by adding the `name="FancyName"` keyword argument:
 ```julia
 lag!(df,:id,:t,:a,name="FancyName")
@@ -94,7 +93,7 @@ lag!(df,:id,:t,:a,name="FancyName")
 Note that this only works operating over a single column. 
 
 
-### Spells (identifying spells)
+### Spells
 or to obtain spells as in `tsspell` in Stata:
 ```julia
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])
@@ -118,18 +117,16 @@ df
 - [`Douglass.jl`](https://github.com/jmboehm/Douglass.jl)
 - More? Please add other packages here.
 
-## Secondary Features
+## Features to be implemented
+- [ ] Allow for higher order differences
 - [ ] Implement `tsfill` to fill in gaps in time variable
 - [ ] Implement `tsappend` to extend gaps in time variable
-- [ ] Other Features?
-## Big Picture
+- [ ] Link with `GLM` or `FixedEffectModels` so that you can specify a model with lags (`Model(y ~ x + F.a`))
+- [ ] Link with `Douglas.jl` 
 - [ ] Add a new type `PanelDataFrame`. Will have to wait untill metadata is added (https://github.com/JuliaData/DataFrames.jl/issues/2961)
   - In addition to `df` or `gdf` it also contains info on time gap (delta), length (T), individuals (N), name of the id and time variables. 
   - Preferably this on also has a trigger for if the dataset is modified so that it is no longer sorted.
-  - For all functions allow passing this object instead of a `DataFrame` so that the user doesn't have to specify the `:id` and the `:t` variables all the time. This should also turn of sorting checks and would allow for some optimizations?
+  - For all functions allow passing this object instead of a `DataFrame` so that the user doesn't have to specify the `:id` and the `:t` variables all the time. This should also turn of sorting checks and would allow for some optimization.
+  - Should also store information about the panel (e.g., is it balanced, consistent time gaps, ...)
 
-### Later goals
-- [x] Allow for less stringent panels (i.e., with missing time, unequal length, and so on)
-- More functionality?
-  - [ ] Add support for the commands to https://github.com/jmboehm/Douglass.jl
 
