@@ -76,6 +76,10 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     return nothing
 end
 
+function tsfill!(df,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
+
+    return nothing
+end
 ## Leads. Call lags when feasible
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="F$n"*String(var))
     if name=="F$n"*String(var)
@@ -134,4 +138,5 @@ end
 
 
 export spell!, lead!, lag!, seasdiff!, diff!
+export tsfill!
 end

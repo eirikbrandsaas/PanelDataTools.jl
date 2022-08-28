@@ -3,6 +3,13 @@ using Test
 using DataFrames
 using Dates
 
+function test_df_tsfill()
+    df = DataFrame(
+        edlevel = [1, 1, 1, 1, 2, 2, 2],
+        year = Year.([1988, 1989, 1990, 1991, 1989, 1990, 1992]),
+        income = [14500, 14750, 14950, 15100, 22100, 22200, 22800]
+    )
+end
 function test_df_simple1()
     #= Helper function that re-creates this Stata code:
     input id t a
@@ -80,6 +87,21 @@ function df_misst() # Checking whether package works with different T within pan
 end
 
 ## Start of tests
+
+@testset "tsfill" begin
+    df = test_df_tsfill()
+    tsfill!(df,:elevel,:year,Year(1))
+    @test_broken df.edlevel == [sort!(repeat([1,2],5))]
+    @test_broken df.year == [repeat(collect(Year(1988):Year(1):Year(1992)),2)]
+    @test_broken df.income ==  [14500, 14750, 14950, 15100, missing, missing, 22100, 22200, missing, 22800]
+
+    df = df_gapT()
+    tsfill!(df,:id,:t,1)
+    @test_broken df.id = [1,1,1,2,2,2]
+    @test_broken df.t = [1,2,3,1,2,3]
+    @test_broken df.a = [1,missing,1,1,0,0,0]
+
+end
 @testset "Basic lag/lead tests" verbose = true begin
     @testset "Basic lag!" begin
         df = test_df_simple1()
