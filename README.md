@@ -110,6 +110,23 @@ df
    5 │     2      2      1       1      2 
    6 │     2      3      0       2      1 
 ```
+### Filling in gaps (`tsfill`)
+`tsfill` is used to fill in gaps of the time variable. You do not need to use it to construct the correct leads, lags or differences.
+```julia
+df = DataFrame(id = [1,1,2,2,2], t = [1,3,1,2,3], a = [1,1,1,0,0]) # Note, missing t=2 for id=1
+df = tsfill(df,:id,:t,1) # Since tsfill extends columns in the DataFrame is does not operate inplace
+6×3 DataFrame
+ Row │ id     t      a       
+     │ Int64  Int64  Int64?  
+─────┼───────────────────────
+   1 │     1      1        1
+   2 │     1      2  missing 
+   3 │     1      3        1
+   4 │     2      1        1
+   5 │     2      2        0
+   6 │     2      3        0
+```
+
 ## Relevant links and packages
 - [`GLM.jl`](https://github.com/JuliaStats/GLM.jl)
 - [`FixedEffectsModels.jl`](https://github.com/FixedEffects/FixedEffectModels.jl)

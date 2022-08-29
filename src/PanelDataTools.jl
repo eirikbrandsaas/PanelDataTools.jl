@@ -76,9 +76,21 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     return nothing
 end
 
-function tsfill!(df,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
+function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
+    mint = minimum(dfi[!,TID])
+    maxt = maximum(dfi[!,TID])
+    t = collect(mint:n:maxt)
+    T = length(t)
+    ids = unique(dfi[!,PID])
 
-    return nothing
+    df = DataFrame()
+    df[!,PID] = sort!(repeat(ids,T))
+    df[!,TID] = repeat(t,length(ids))
+    dfi = rightjoin(dfi,df,on=[PID,TID])
+    sort!(dfi,[PID,TID])
+
+
+    return dfi
 end
 ## Leads. Call lags when feasible
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="F$n"*String(var))
@@ -138,5 +150,5 @@ end
 
 
 export spell!, lead!, lag!, seasdiff!, diff!
-export tsfill!
+export tsfill
 end
