@@ -132,6 +132,7 @@ df = tsfill(df,:id,:t,1) # Since tsfill extends columns in the DataFrame is does
 - [`FixedEffectsModels.jl`](https://github.com/FixedEffects/FixedEffectModels.jl)
 - [`Econometrics.jl`](https://github.com/Nosferican/Econometrics.jl)
 - [`Douglass.jl`](https://github.com/jmboehm/Douglass.jl)
+- [`PeriodicalDates.jl`](https://github.com/matthieugomez/PeriodicalDates.jl)
 - More? Please add other packages here.
 
 ## Features to be implemented
