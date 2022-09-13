@@ -86,7 +86,20 @@ function df_misst() # Checking whether package works with different T within pan
     df = DataFrame(id = [1,1,1,2,2,2], t = [1,missing,3,1,2,3], a = [1,1,1,1,0,0])
 end
 
-## Start of tests
+function test_df_diffs()
+    #= Helper function that re-creates this Stata code:
+    clear
+    input i t x
+    1 1 1
+    1 2 1
+    1 3 2
+    1 4 3
+    1 5 4
+    end // =#
+    df = DataFrame(id = [1,1,1,1,1], t = [1,2,3,4,5], a = [1,1,2,3,4])
+end
+
+
 
 @testset "tsfill" begin
     df = test_df_tsfill()
@@ -229,8 +242,8 @@ end
 end
 
 ## Diffs
-# @testset "Seasonal Diff tests" verbose = true begin
-    @testset "Basic" begin
+@testset "Diff and Seasonal Diff tests" verbose = true begin
+    @testset "Basic seasdiff!" begin
         df = test_df_simple1_long()
         seasdiff!(df,:id,:t,:a)
         seasdiff!(df,:id,:t,:a,2)
@@ -251,10 +264,8 @@ end
         seasdiff!(df,:id,:t,:a;name="customname")
         @test isequal(df[!,:S1a],df[!,:customname])
     end
-# end
 
-# @testset "Diff tests" verbose = true begin
-    @testset "Basic" begin
+    @testset "Basic diff" begin
         df = test_df_simple1_long()
         diff!(df,:id,:t,:a)
         diff!(df,:id,:t,:a,2)
@@ -268,9 +279,31 @@ end
         diff!(df,:id,:t,:a)
         diff!(df,:id,:t,:a;name="customname")
         @test isequal(df[!,:D1a],df[!,:customname])
-
     end
-# end
+
+    @testset "Seasdiff and diff up to four" begin
+        df = test_df_diffs()
+        diff!(df,:id,:t,:a,1)
+        diff!(df,:id,:t,:a,2)
+        diff!(df,:id,:t,:a,3)
+        diff!(df,:id,:t,:a,4)
+        seasdiff!(df,:id,:t,:a,1)
+        seasdiff!(df,:id,:t,:a,2)
+        seasdiff!(df,:id,:t,:a,3)
+        seasdiff!(df,:id,:t,:a,4)
+
+        @test isequal(df.D1a,[missing,0,1,1,1])
+        @test isequal(df.D2a,[missing,missing,1,0,0])
+        @test isequal(df.D3a,[missing,missing,missing,-1 ,0])
+        @test isequal(df.D4a,[missing,missing,missing,missing,1])
+        @test isequal(df.S1a,[missing,0,1,1,1])
+        @test isequal(df.S2a,[missing,missing,1,2,2])
+        @test isequal(df.S3a,[missing,missing,missing,2,3])
+        @test isequal(df.S4a,[missing,missing,missing,missing,3])
+    end
+
+end
+
 
 
 ## Small test for github issues
