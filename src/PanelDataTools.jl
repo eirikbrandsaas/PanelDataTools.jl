@@ -45,9 +45,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 end
 
 function spell!(df,var::Symbol)
-    PID = metadata(df,"PID")
-    TID = metadata(df,"TID")
-    spell!(df,PID,TID,var)
+    spell!(df,metadata(df,"PID"),metadata(df,"TID"),var)
 end
 
 ## Lags
@@ -61,13 +59,7 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, 
 end
 
 function lag!(df,var::Symbol,n=metadata(df,"Delta");name="L$n"*String(var))
-    PID = metadata(df,"PID")
-    TID = metadata(df,"TID")
-
-    if name=="L$n"*String(var) # Only do it passed default name
-        name = prettyname(name,df[1, TID],n,var,"L")
-    end
-    panellag!(df,PID,TID,var,name,n)
+    panellag!(df,metadata(df,"PID"),metadata(df,"TID"),var,name,n)
     return nothing
 end
 
@@ -80,10 +72,7 @@ function lag!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TI
 end
 
 function lag!(df,vars::Vector{Symbol},n=metadata(df,"Delta"))
-    PID = metadata(df,"PID")
-    TID = metadata(df,"TID")
-
-    lag!(df,PID,TID,vars,n)
+    lag!(df,metadata(df,"PID"),metadata(df,"TID"),vars,n)
     return nothing
 end
 
@@ -99,18 +88,12 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 function lag!(df,var::Symbol,ns::Vector)
-    PID = metadata(df,"PID")
-    TID = metadata(df,"TID")
-    for n in ns[ns.>0]
-        lag!(df,PID,TID,var,n)
-    end
-    for n in ns[ns.<0]
-        lead!(df,PID,TID,var,-n)
-    end
+    lag!(df,metadata(df,"PID"),metadata(df,"TID"),var,ns)
     return nothing
 end
 
 ## Leads. Call lags when feasible
+# Lead one
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="F$n"*String(var))
     if name=="F$n"*String(var)
         name = prettyname(name,df[1, TID],n,var,"F")
