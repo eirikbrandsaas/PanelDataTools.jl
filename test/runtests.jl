@@ -361,10 +361,16 @@ end
         @test isequal(df.D2a,[missing, missing, 1,-1, missing, missing, -1,2])
         @test isequal(df.D3a,[missing, missing, missing,-2, missing, missing, missing,3])
 
+        dfm = test_df_simple1_long()
+        paneldf!(dfm,:id,:t)
+        diff!(dfm,:a,2)
+        isequal(df.D2a,dfm.D2a)
+
         df = test_df_simple1_long()
         diff!(df,:id,:t,:a)
         diff!(df,:id,:t,:a;name="customname")
         @test isequal(df[!,:D1a],df[!,:customname])
+
     end
 
     @testset "Seasdiff and diff up to four" begin

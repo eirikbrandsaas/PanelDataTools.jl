@@ -176,6 +176,10 @@ function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name
     return nothing
 end
 
+function diff!(df,var::Symbol,n=metadata(df,"Delta");name = "D$n"*String(var))
+   diff!(df,metadata(df,"PID"),metadata(df,"TID"),var,n,name=name)
+end
+
 ##
 function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
     mint = minimum(dfi[!,TID])
