@@ -177,6 +177,10 @@ function paneldf!(df,PID::Symbol,TID::Symbol)
     metadata!(df, "PID", PID, style=:note)
     metadata!(df, "TID", TID, style=:note)
     metadata!(df, "Delta", oneunit(df[1,TID]-df[1, TID]),style=:note)
+
+    println("panel variable: "*String(metadata(df,"PID")))
+    println(" time variable: "*String(metadata(df,"TID")))
+    println("         delta: "*string(metadata(df,"Delta")))
 end
 
 
