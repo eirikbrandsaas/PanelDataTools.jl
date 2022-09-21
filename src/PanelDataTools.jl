@@ -141,12 +141,21 @@ function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);
     return nothing
 end
 
+function seasdiff!(df,var::Symbol,n=metadata(df,"Delta");name = "S$n"*String(var))
+    seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,n;name=name)
+end
+
 function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     for n in ns
         seasdiff!(df,PID,TID,var,n)
     end
     return nothing
 end
+
+function seasdiff!(df,var::Symbol,ns::Vector)
+    seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,ns)
+end
+
 
 ## Diffs.
 function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "D$n"*String(var))

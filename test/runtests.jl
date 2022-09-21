@@ -321,12 +321,17 @@ end
 @testset "Diff and Seasonal Diff tests" verbose = true begin
     @testset "Basic seasdiff!" begin
         df = test_df_simple1_long()
+        dfm = test_df_simple1_long()
         seasdiff!(df,:id,:t,:a)
         seasdiff!(df,:id,:t,:a,2)
         seasdiff!(df,:id,:t,:a,3)
         @test isequal(df.S1a,[missing,0,1,0,missing,0,-1,1])
         @test isequal(df.S2a,[missing, missing, 1, 1, missing, missing, -1,0])
         @test isequal(df.S3a,[missing, missing, missing, 1, missing, missing, missing,0])
+
+        paneldf!(dfm,:id,:t)
+        seasdiff!(dfm,:a,2)
+        @test isequal(df.S2a,dfm.S2a)
 
         df = test_df_simple2()
         seasdiff!(df,:id,:t,:a,[1,2])
