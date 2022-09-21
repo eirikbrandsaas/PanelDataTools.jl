@@ -102,6 +102,11 @@ function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name
     return nothing
 end
 
+function lead!(df,var::Symbol,n=metadata(df,"Delta");name="F$n"*String(var))
+    panellead!(df,metadata(df,"PID"),metadata(df,"TID"),var,name,n)
+    return nothing
+end
+
 function lead!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TID]))
     for var in vars
         lead!(df,PID,TID,var,name="F$n"*String(var),n)

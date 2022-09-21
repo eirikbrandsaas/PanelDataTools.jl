@@ -187,11 +187,19 @@ end
 
     @testset "Basic lead!" begin
         df = test_df_simple1()
+        dfm = test_df_simple1()
         lead!(df,:id,:t,:a)
         @test isequal(df.F1a,[0, 1, missing, 1, 0, missing])
 
         lead!(df,:id,:t,:a,2)
         @test isequal(df.F2a,[1, missing, missing, 0, missing, missing])
+
+        paneldf!(dfm,:id,:t)
+        lead!(dfm,:a)
+        lead!(dfm,:a,2)
+        @test isequal(df.F1a,dfm.F1a)
+        @test isequal(df.F2a,dfm.F2a)
+
     end
 
     @testset "Multiple lead/lags" begin
