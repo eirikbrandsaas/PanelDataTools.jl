@@ -77,7 +77,13 @@ function lag!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TI
     return nothing
 end
 
-function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
+function lag!(df,vars::Vector{Symbol},n=metadata(df,"Delta"))
+    PID = metadata(df,"PID")
+    TID = metadata(df,"TID")
+
+    lag!(df,PID,TID,vars,n)
+    return nothing
+end
     for n in ns[ns.>0]
         lag!(df,PID,TID,var,n)
     end

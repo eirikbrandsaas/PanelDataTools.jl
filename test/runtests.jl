@@ -234,6 +234,7 @@ end
     @testset "Multiple columns" begin
         df = test_df_simple3var()
         dfn = deepcopy(df)
+        dfm = deepcopy(df)
         lag!(df,:id,:t,:a,[-1,1])
         lag!(df,:id,:t,:b,[-1,1])
         lag!(df,:id,:t,:c,[-1,1])
@@ -243,6 +244,12 @@ end
         lead!(dfn,:id,:t,[:a,:b,:c])
         for var in [:L1a, :L1b, :L1c, :F1a, :F1b, :F1c]
             @test isequal(df[!,var],dfn[!,var])
+        end
+
+        paneldf!(dfm,:id,:t)
+        lag!(dfm,[:a,:b,:c])
+        for var in [:L1a, :L1b, :L1c]
+            @test isequal(df[!,var],dfm[!,var])
         end
     end
 
