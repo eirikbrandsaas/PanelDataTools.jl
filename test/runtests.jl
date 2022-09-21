@@ -338,6 +338,11 @@ end
         @test isequal(df.S1a,[missing, 0, 0, missing,-1,0])
         @test isequal(df.S2a,[missing, missing, 0, missing,missing,-1])
 
+        dfm = test_df_simple2()
+        paneldf!(dfm,:id,:t)
+        seasdiff!(dfm,:a,[1,2])
+        @test isequal(df,dfm)
+
         @test_throws AssertionError seasdiff!(df,:id,:t,:a,0)
 
         df = test_df_simple1_long()
