@@ -198,6 +198,10 @@ function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
     return dfi
 end
 
+function tsfill(df,n=metadata(df,"Delta"))
+   tsfill(df,metadata(df,"PID"),metadata(df,"TID"),n)
+end
+
 ## Metadata
 """
     paneldf!(df,PID::Symbol,TID:Symbol)

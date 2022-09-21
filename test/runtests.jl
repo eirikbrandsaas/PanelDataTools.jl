@@ -148,6 +148,10 @@ end
     @test df.year == repeat(collect(Year(1988):Year(1):Year(1992)),2)
     @test isequal(df.income,[14500, 14750, 14950, 15100, missing, missing, 22100, 22200, missing, 22800])
 
+    dfm = test_df_tsfill()
+    paneldf!(dfm,:edlevel,:year)
+    dfm = tsfill(dfm,Year(1))
+    @test isequal(df,dfm)
     df = df_gapT()
     df = tsfill(df,:id,:t,1)
     @test df.id == [1,1,1,2,2,2]
