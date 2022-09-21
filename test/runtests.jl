@@ -218,12 +218,17 @@ end
             @test isequal(df[!,var],dfb[!,var])
         end
 
+        # Test that multilag works
         paneldf!(dfm,:id,:t)
         lag!(dfm,:a,[1,2,-1,-2])
         for var in [:L1a :L2a :F1a :F2a]
             @test isequal(dfm[!,var],dfb[!,var])
         end
-
+        # Test that multilead works
+        _dfm = test_df_simple1()
+        paneldf!(_dfm,:id,:t)
+        lead!(_dfm,:a,[1,2,-1,-2])
+        @test isequal(dfm,_dfm)
 
         df = test_df_simple1()
         lead!(df,:id,:t,:a,[1,2,-1,-2])

@@ -120,10 +120,17 @@ function lead!(df,vars::Vector{Symbol},n=metadata(df,"Delta"))
     return nothing
 end
 
+# many values
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     lag!(df,PID,TID,var,-ns)
     return nothing
 end
+
+function lead!(df,var::Symbol,ns::Vector)
+    lag!(df,var,-ns)
+    return nothing
+end
+
 
 ## Seasonal Diffs.
 function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "S$n"*String(var))
