@@ -3,6 +3,7 @@ using Test
 using DataFrames
 using Dates
 
+## Example dataframes used in testing
 function test_df_tsfill()
     df = DataFrame(
         edlevel = [1, 1, 1, 1, 2, 2, 2],
@@ -67,9 +68,6 @@ function test_df_datetime()
     df = DataFrame(id = [1,1,1,2,2,2], t = repeat([DateTime(2000,1,1,1,1,1,1),DateTime(2000,1,1,1,1,1,2),DateTime(2001,1,1,1,1,1,1)],2), a = [1,1,0,0,1,1])
 end
 
-
-
-
 function df_diffT() # Checking whether package works with different T within panel
     df = DataFrame(id = [1,1,2,2,2], t = [1,2,1,2,3], a = [1,1,1,0,0])
 end
@@ -99,8 +97,49 @@ function test_df_diffs()
     df = DataFrame(id = [1,1,1,1,1], t = [1,2,3,4,5], a = [1,1,2,3,4])
 end
 
+## Start of testing
+
+@testset "Metadata basics" verbose = true begin
+    @testset "Metadata creation (paneldf!)" verbose = true begin
+        # Test with integer time
+        dfm = test_df_simple1()
+        paneldf!(dfm,:id,:t)
+
+        @test metadata(dfm,"PID") == :id
+        @test metadata(dfm,"TID") == :t
+        @test metadata(dfm,"Delta") == 1
+
+        dfm = test_df_date()
+        paneldf!(dfm,:id,:t)
+        @test metadata(dfm,"Delta") == Day(1)
+
+        dfm = test_df_datetime()
+        paneldf!(dfm,:id,:t)
+        @test metadata(dfm,"Delta") == Millisecond(1)
+    end
 
 
+    @testset "Metadata lag basics" verbose = true begin
+
+        ## Basic basic
+        df = test_df_simple1()
+        dfm = deepcopy(df)
+        paneldf!(dfm,:id,:t)
+
+        lag!(df,:id,:t,:a)
+        lag!(dfm,:a)
+
+        @test isequal(df.L1a,dfm.L1a)
+
+        ## gap in T
+        df = df_gapT()
+        dfm = deepcopy(df)
+        paneldf!(dfm,:id,:t)
+        lag!(df,:id,:t,:a)
+        lag!(dfm,:a)
+        @test isequal(df.L1a,dfm.L1a)
+    end
+end
 @testset "tsfill" begin
     df = test_df_tsfill()
     df = tsfill(df,:edlevel,:year,Year(1))
@@ -114,6 +153,7 @@ end
     @test df.t == [1,2,3,1,2,3]
     @test isequal(df.a,[1,missing,1,1,0,0])
 end
+
 
 @testset "Basic lag/lead tests" verbose = true begin
     @testset "Basic lag!" begin

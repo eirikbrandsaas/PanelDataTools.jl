@@ -7,6 +7,7 @@ using PanelShift
 using Dates
 
 
+## Spell analysis
 function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     for var in ["_end", "_seq", "_spell"]
         if "$var" ∈ Set(names(df))
@@ -43,7 +44,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     return nothing
 end
 
-# Lags (fundamental)
+## Lags
 function prettyname(name,t,n,var,prefix)
     if isa(t,TimeType)==true
         name=prefix*"$(n.value)"*String(var)
@@ -52,6 +53,17 @@ function prettyname(name,t,n,var,prefix)
 end
 
 function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name="L$n"*String(var))
+    if name=="L$n"*String(var) # Only do it passed default name
+        name = prettyname(name,df[1, TID],n,var,"L")
+    end
+    panellag!(df,PID,TID,var,name,n)
+    return nothing
+end
+
+function lag!(df,var::Symbol,n=metadata(df,"Delta");name="L$n"*String(var))
+    TID = metadata(df,"TID")
+    PID = metadata(df,"PID")
+
     if name=="L$n"*String(var) # Only do it passed default name
         name = prettyname(name,df[1, TID],n,var,"L")
     end
@@ -76,22 +88,6 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     return nothing
 end
 
-function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
-    mint = minimum(dfi[!,TID])
-    maxt = maximum(dfi[!,TID])
-    t = collect(mint:n:maxt)
-    T = length(t)
-    ids = unique(dfi[!,PID])
-
-    df = DataFrame()
-    df[!,PID] = sort!(repeat(ids,T))
-    df[!,TID] = repeat(t,length(ids))
-    dfi = rightjoin(dfi,df,on=[PID,TID])
-    sort!(dfi,[PID,TID])
-
-
-    return dfi
-end
 ## Leads. Call lags when feasible
 function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name="F$n"*String(var))
     if name=="F$n"*String(var)
@@ -148,7 +144,44 @@ function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name
     return nothing
 end
 
+##
+function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
+    mint = minimum(dfi[!,TID])
+    maxt = maximum(dfi[!,TID])
+    t = collect(mint:n:maxt)
+    T = length(t)
+    ids = unique(dfi[!,PID])
+
+    df = DataFrame()
+    df[!,PID] = sort!(repeat(ids,T))
+    df[!,TID] = repeat(t,length(ids))
+    dfi = rightjoin(dfi,df,on=[PID,TID])
+    sort!(dfi,[PID,TID])
+
+
+    return dfi
+end
+
+## Metadata
+"""
+    paneldf!(df,PID::Symbol,TID:Symbol)
+
+Attaches `:PID` and `:TID` to `df` so that one doesn't have to pass those all the times.
+
+# Examples
+```julia-repl
+display(write this)
+```
+"""
+function paneldf!(df,PID::Symbol,TID::Symbol)
+    metadata!(df, "PID", PID, style=:note)
+    metadata!(df, "TID", TID, style=:note)
+    metadata!(df, "Delta", oneunit(df[1,TID]-df[1, TID]),style=:note)
+end
+
+
 
 export spell!, lead!, lag!, seasdiff!, diff!
 export tsfill
+export paneldf!
 end
