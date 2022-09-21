@@ -107,10 +107,16 @@ function lead!(df,var::Symbol,n=metadata(df,"Delta");name="F$n"*String(var))
     return nothing
 end
 
+# Many column leads
 function lead!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TID]))
     for var in vars
         lead!(df,PID,TID,var,name="F$n"*String(var),n)
     end
+    return nothing
+end
+
+function lead!(df,vars::Vector{Symbol},n=metadata(df,"Delta"))
+    lead!(df,metadata(df,"PID"),metadata(df,"TID"),vars,n)
     return nothing
 end
 

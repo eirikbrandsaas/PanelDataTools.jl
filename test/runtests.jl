@@ -266,7 +266,8 @@ end
 
         paneldf!(dfm,:id,:t)
         lag!(dfm,[:a,:b,:c])
-        for var in [:L1a, :L1b, :L1c]
+        lead!(dfm,[:a,:b,:c])
+        for var in [:L1a, :L1b, :L1c, :F1a, :F1b, :F1c]
             @test isequal(df[!,var],dfm[!,var])
         end
     end
