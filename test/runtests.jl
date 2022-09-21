@@ -219,7 +219,7 @@ end
         end
 
         paneldf!(dfm,:id,:t)
-        lag!(dfm,:id,:t,:a,[1,2,-1,-2])
+        lag!(dfm,:a,[1,2,-1,-2])
         for var in [:L1a :L2a :F1a :F2a]
             @test isequal(dfm[!,var],dfb[!,var])
         end
