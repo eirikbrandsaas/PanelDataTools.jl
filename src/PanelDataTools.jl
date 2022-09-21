@@ -214,6 +214,9 @@ display(write this)
 ```
 """
 function paneldf!(df,PID::Symbol,TID::Symbol)
+    @assert (String(PID) in names(df)) == true String(PID)*" (panel variable) does not exist in df"
+    @assert (String(TID) in names(df)) == true String(TID)*" (time variable) does not exist in df"
+
     metadata!(df, "PID", PID, style=:note)
     metadata!(df, "TID", TID, style=:note)
     metadata!(df, "Delta", oneunit(df[1,TID]-df[1, TID]),style=:note)

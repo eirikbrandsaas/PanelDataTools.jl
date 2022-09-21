@@ -116,6 +116,10 @@ end
         dfm = test_df_datetime()
         paneldf!(dfm,:id,:t)
         @test metadata(dfm,"Delta") == Millisecond(1)
+
+        df = test_df_tsfill()
+        @test_throws AssertionError paneldf!(df,:edlevel1,:year)
+        @test_throws AssertionError paneldf!(df,:edlevel,:year1)
     end
 
 
