@@ -44,6 +44,12 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     return nothing
 end
 
+function spell!(df,var::Symbol)
+    PID = metadata(df,"PID")
+    TID = metadata(df,"TID")
+    spell!(df,PID,TID,var)
+end
+
 ## Lags
 function prettyname(name,t,n,var,prefix)
     if isa(t,TimeType)==true
@@ -61,8 +67,8 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, 
 end
 
 function lag!(df,var::Symbol,n=metadata(df,"Delta");name="L$n"*String(var))
-    TID = metadata(df,"TID")
     PID = metadata(df,"PID")
+    TID = metadata(df,"TID")
 
     if name=="L$n"*String(var) # Only do it passed default name
         name = prettyname(name,df[1, TID],n,var,"L")

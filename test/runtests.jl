@@ -264,6 +264,11 @@ end
     @test df._seq == [1, 2, 1, 1, 2, 1]
 
     @test_throws ArgumentError spell!(df,:id,:t,:a) # Check that test throws if variables exist
+    dfm = test_df_simple1()
+    paneldf!(dfm,:id,:t)
+    spell!(dfm,:a)
+    @test isequal(dfm._spell,df._spell)
+    @test isequal(dfm._seq,df._seq)
 
     df = test_df_simple2()
     spell!(df,:id,:t,:a)
