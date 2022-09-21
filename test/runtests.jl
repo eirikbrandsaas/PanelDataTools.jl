@@ -140,6 +140,7 @@ end
         @test isequal(df.L1a,dfm.L1a)
     end
 end
+
 @testset "tsfill" begin
     df = test_df_tsfill()
     df = tsfill(df,:edlevel,:year,Year(1))
@@ -195,18 +196,27 @@ end
 
     @testset "Multiple lead/lags" begin
         ## Test that you get the same numbers
+        df = test_df_simple1()
         dfb = test_df_simple1()
+        dfm = test_df_simple1()
         lag!(dfb,:id,:t,:a)
         lag!(dfb,:id,:t,:a,2)
         lead!(dfb,:id,:t,:a)
         lead!(dfb,:id,:t,:a,2)
 
-        df = test_df_simple1()
         lag!(df,:id,:t,:a,[1,2,-1,-2])
 
         for var in [:L1a :L2a :F1a :F2a]
             @test isequal(df[!,var],dfb[!,var])
         end
+
+        paneldf!(dfm,:id,:t)
+        lag!(dfm,:id,:t,:a,[1,2,-1,-2])
+        for var in [:L1a :L2a :F1a :F2a]
+            @test isequal(dfm[!,var],dfb[!,var])
+        end
+
+
         df = test_df_simple1()
         lead!(df,:id,:t,:a,[1,2,-1,-2])
 

@@ -51,6 +51,7 @@ function spell!(df,var::Symbol)
 end
 
 ## Lags
+# One lag (basic building block of all code)
 function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name="L$n"*String(var))
     if name=="L$n"*String(var) # Only do it passed default name
         name = prettyname(name,df[1, TID],n,var,"L")
@@ -70,6 +71,7 @@ function lag!(df,var::Symbol,n=metadata(df,"Delta");name="L$n"*String(var))
     return nothing
 end
 
+# Lag many columns
 function lag!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TID]))
     for var in vars
         lag!(df,PID,TID,var,name="L$n"*String(var),n)
@@ -84,6 +86,21 @@ function lag!(df,vars::Vector{Symbol},n=metadata(df,"Delta"))
     lag!(df,PID,TID,vars,n)
     return nothing
 end
+
+# Lag one column many times
+function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
+    for n in ns[ns.>0]
+        lag!(df,PID,TID,var,n)
+    end
+    for n in ns[ns.<0]
+        lead!(df,PID,TID,var,-n)
+    end
+    return nothing
+end
+
+function lag!(df,var::Symbol,ns::Vector)
+    PID = metadata(df,"PID")
+    TID = metadata(df,"TID")
     for n in ns[ns.>0]
         lag!(df,PID,TID,var,n)
     end
