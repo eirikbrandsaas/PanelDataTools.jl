@@ -51,13 +51,6 @@ function spell!(df,var::Symbol)
 end
 
 ## Lags
-function prettyname(name,t,n,var,prefix)
-    if isa(t,TimeType)==true
-        name=prefix*"$(n.value)"*String(var)
-    end
-    return name
-end
-
 function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name="L$n"*String(var))
     if name=="L$n"*String(var) # Only do it passed default name
         name = prettyname(name,df[1, TID],n,var,"L")
@@ -189,6 +182,13 @@ function paneldf!(df,PID::Symbol,TID::Symbol)
     println("         delta: "*string(metadata(df,"Delta")))
 end
 
+## Utilities
+function prettyname(name,t,n,var,prefix)
+    if isa(t,TimeType)==true
+        name=prefix*"$(n.value)"*String(var)
+    end
+    return name
+end
 
 
 export spell!, lead!, lag!, seasdiff!, diff!
