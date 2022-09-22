@@ -3,6 +3,7 @@ using Test
 using DataFrames
 using Dates
 
+## Example dataframes used in testing
 function test_df_tsfill()
     df = DataFrame(
         edlevel = [1, 1, 1, 1, 2, 2, 2],
@@ -67,9 +68,6 @@ function test_df_datetime()
     df = DataFrame(id = [1,1,1,2,2,2], t = repeat([DateTime(2000,1,1,1,1,1,1),DateTime(2000,1,1,1,1,1,2),DateTime(2001,1,1,1,1,1,1)],2), a = [1,1,0,0,1,1])
 end
 
-
-
-
 function df_diffT() # Checking whether package works with different T within panel
     df = DataFrame(id = [1,1,2,2,2], t = [1,2,1,2,3], a = [1,1,1,0,0])
 end
@@ -99,7 +97,62 @@ function test_df_diffs()
     df = DataFrame(id = [1,1,1,1,1], t = [1,2,3,4,5], a = [1,1,2,3,4])
 end
 
+## Start of testing
 
+@testset "Metadata basics" verbose = true begin
+    @testset "Metadata creation (paneldf!)" verbose = true begin
+        # Test with integer time
+        dfm = test_df_simple1()
+        paneldf!(dfm,:id,:t)
+
+        @test metadata(dfm,"PID") == :id
+        @test metadata(dfm,"TID") == :t
+        @test metadata(dfm,"Delta") == 1
+
+        dfm = test_df_date()
+        paneldf!(dfm,:id,:t)
+        @test metadata(dfm,"Delta") == Day(1)
+
+        dfm = test_df_datetime()
+        paneldf!(dfm,:id,:t)
+        @test metadata(dfm,"Delta") == Millisecond(1)
+
+        # Test error is thrown if wrong PID/TID name is used
+        df = test_df_tsfill()
+        @test_throws AssertionError paneldf!(df,:edlevel1,:year)
+        @test_throws AssertionError paneldf!(df,:edlevel,:year1)
+
+        # Test error is thrown if paneldf doesn't have TID/PID/Delta
+        df = test_df_tsfill()
+        @test_throws ArgumentError lag!(df,:income)
+        metadata!(df,"Delta",1,style=:note)
+        @test_throws AssertionError lag!(df,:income)
+        metadata!(df,"PID",:edlevel,style=:note)
+        @test_throws AssertionError lag!(df,:income)
+    end
+
+
+    @testset "Metadata lag basics" verbose = true begin
+
+        ## Basic basic
+        df = test_df_simple1()
+        dfm = deepcopy(df)
+        paneldf!(dfm,:id,:t)
+
+        lag!(df,:id,:t,:a)
+        lag!(dfm,:a)
+
+        @test isequal(df.L1a,dfm.L1a)
+
+        ## gap in T
+        df = df_gapT()
+        dfm = deepcopy(df)
+        paneldf!(dfm,:id,:t)
+        lag!(df,:id,:t,:a)
+        lag!(dfm,:a)
+        @test isequal(df.L1a,dfm.L1a)
+    end
+end
 
 @testset "tsfill" begin
     df = test_df_tsfill()
@@ -108,12 +161,17 @@ end
     @test df.year == repeat(collect(Year(1988):Year(1):Year(1992)),2)
     @test isequal(df.income,[14500, 14750, 14950, 15100, missing, missing, 22100, 22200, missing, 22800])
 
+    dfm = test_df_tsfill()
+    paneldf!(dfm,:edlevel,:year)
+    dfm = tsfill(dfm,Year(1))
+    @test isequal(df,dfm)
     df = df_gapT()
     df = tsfill(df,:id,:t,1)
     @test df.id == [1,1,1,2,2,2]
     @test df.t == [1,2,3,1,2,3]
     @test isequal(df.a,[1,missing,1,1,0,0])
 end
+
 
 @testset "Basic lag/lead tests" verbose = true begin
     @testset "Basic lag!" begin
@@ -146,27 +204,49 @@ end
 
     @testset "Basic lead!" begin
         df = test_df_simple1()
+        dfm = test_df_simple1()
         lead!(df,:id,:t,:a)
         @test isequal(df.F1a,[0, 1, missing, 1, 0, missing])
 
         lead!(df,:id,:t,:a,2)
         @test isequal(df.F2a,[1, missing, missing, 0, missing, missing])
+
+        paneldf!(dfm,:id,:t)
+        lead!(dfm,:a)
+        lead!(dfm,:a,2)
+        @test isequal(df.F1a,dfm.F1a)
+        @test isequal(df.F2a,dfm.F2a)
+
     end
 
     @testset "Multiple lead/lags" begin
         ## Test that you get the same numbers
+        df = test_df_simple1()
         dfb = test_df_simple1()
+        dfm = test_df_simple1()
         lag!(dfb,:id,:t,:a)
         lag!(dfb,:id,:t,:a,2)
         lead!(dfb,:id,:t,:a)
         lead!(dfb,:id,:t,:a,2)
 
-        df = test_df_simple1()
         lag!(df,:id,:t,:a,[1,2,-1,-2])
 
         for var in [:L1a :L2a :F1a :F2a]
             @test isequal(df[!,var],dfb[!,var])
         end
+
+        # Test that multilag works
+        paneldf!(dfm,:id,:t)
+        lag!(dfm,:a,[1,2,-1,-2])
+        for var in [:L1a :L2a :F1a :F2a]
+            @test isequal(dfm[!,var],dfb[!,var])
+        end
+        # Test that multilead works
+        _dfm = test_df_simple1()
+        paneldf!(_dfm,:id,:t)
+        lead!(_dfm,:a,[1,2,-1,-2])
+        @test isequal(dfm,_dfm)
+
         df = test_df_simple1()
         lead!(df,:id,:t,:a,[1,2,-1,-2])
 
@@ -194,6 +274,7 @@ end
     @testset "Multiple columns" begin
         df = test_df_simple3var()
         dfn = deepcopy(df)
+        dfm = deepcopy(df)
         lag!(df,:id,:t,:a,[-1,1])
         lag!(df,:id,:t,:b,[-1,1])
         lag!(df,:id,:t,:c,[-1,1])
@@ -203,6 +284,13 @@ end
         lead!(dfn,:id,:t,[:a,:b,:c])
         for var in [:L1a, :L1b, :L1c, :F1a, :F1b, :F1c]
             @test isequal(df[!,var],dfn[!,var])
+        end
+
+        paneldf!(dfm,:id,:t)
+        lag!(dfm,[:a,:b,:c])
+        lead!(dfm,[:a,:b,:c])
+        for var in [:L1a, :L1b, :L1c, :F1a, :F1b, :F1c]
+            @test isequal(df[!,var],dfm[!,var])
         end
     end
 
@@ -224,6 +312,11 @@ end
     @test df._seq == [1, 2, 1, 1, 2, 1]
 
     @test_throws ArgumentError spell!(df,:id,:t,:a) # Check that test throws if variables exist
+    dfm = test_df_simple1()
+    paneldf!(dfm,:id,:t)
+    spell!(dfm,:a)
+    @test isequal(dfm._spell,df._spell)
+    @test isequal(dfm._seq,df._seq)
 
     df = test_df_simple2()
     spell!(df,:id,:t,:a)
@@ -245,6 +338,7 @@ end
 @testset "Diff and Seasonal Diff tests" verbose = true begin
     @testset "Basic seasdiff!" begin
         df = test_df_simple1_long()
+        dfm = test_df_simple1_long()
         seasdiff!(df,:id,:t,:a)
         seasdiff!(df,:id,:t,:a,2)
         seasdiff!(df,:id,:t,:a,3)
@@ -252,10 +346,19 @@ end
         @test isequal(df.S2a,[missing, missing, 1, 1, missing, missing, -1,0])
         @test isequal(df.S3a,[missing, missing, missing, 1, missing, missing, missing,0])
 
+        paneldf!(dfm,:id,:t)
+        seasdiff!(dfm,:a,2)
+        @test isequal(df.S2a,dfm.S2a)
+
         df = test_df_simple2()
         seasdiff!(df,:id,:t,:a,[1,2])
         @test isequal(df.S1a,[missing, 0, 0, missing,-1,0])
         @test isequal(df.S2a,[missing, missing, 0, missing,missing,-1])
+
+        dfm = test_df_simple2()
+        paneldf!(dfm,:id,:t)
+        seasdiff!(dfm,:a,[1,2])
+        @test isequal(df,dfm)
 
         @test_throws AssertionError seasdiff!(df,:id,:t,:a,0)
 
@@ -275,10 +378,16 @@ end
         @test isequal(df.D2a,[missing, missing, 1,-1, missing, missing, -1,2])
         @test isequal(df.D3a,[missing, missing, missing,-2, missing, missing, missing,3])
 
+        dfm = test_df_simple1_long()
+        paneldf!(dfm,:id,:t)
+        diff!(dfm,:a,2)
+        isequal(df.D2a,dfm.D2a)
+
         df = test_df_simple1_long()
         diff!(df,:id,:t,:a)
         diff!(df,:id,:t,:a;name="customname")
         @test isequal(df[!,:D1a],df[!,:customname])
+
     end
 
     @testset "Seasdiff and diff up to four" begin
