@@ -45,6 +45,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
 end
 
 function spell!(df,var::Symbol)
+    _assert_panel(df)
     spell!(df,metadata(df,"PID"),metadata(df,"TID"),var)
 end
 
@@ -59,8 +60,8 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, 
 end
 
 function lag!(df,var::Symbol,n=metadata(df,"Delta");name="L$n"*String(var))
+    _assert_panel(df)
     panellag!(df,metadata(df,"PID"),metadata(df,"TID"),var,name,n)
-    return nothing
 end
 
 # Lag many columns
@@ -72,8 +73,8 @@ function lag!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, TI
 end
 
 function lag!(df,vars::Vector{Symbol},n=metadata(df,"Delta"))
+    _assert_panel(df)
     lag!(df,metadata(df,"PID"),metadata(df,"TID"),vars,n)
-    return nothing
 end
 
 # Lag one column many times
@@ -88,8 +89,8 @@ function lag!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 function lag!(df,var::Symbol,ns::Vector)
+    _assert_panel(df)
     lag!(df,metadata(df,"PID"),metadata(df,"TID"),var,ns)
-    return nothing
 end
 
 ## Leads. Call lags when feasible
@@ -103,8 +104,8 @@ function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name
 end
 
 function lead!(df,var::Symbol,n=metadata(df,"Delta");name="F$n"*String(var))
+    _assert_panel(df)
     panellead!(df,metadata(df,"PID"),metadata(df,"TID"),var,name,n)
-    return nothing
 end
 
 # Many column leads
@@ -116,8 +117,8 @@ function lead!(df,PID::Symbol,TID::Symbol,vars::Vector{Symbol},n=oneunit(df[1, T
 end
 
 function lead!(df,vars::Vector{Symbol},n=metadata(df,"Delta"))
+    _assert_panel(df)
     lead!(df,metadata(df,"PID"),metadata(df,"TID"),vars,n)
-    return nothing
 end
 
 # many values
@@ -127,8 +128,8 @@ function lead!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 function lead!(df,var::Symbol,ns::Vector)
+    _assert_panel(df)
     lag!(df,var,-ns)
-    return nothing
 end
 
 
@@ -142,6 +143,7 @@ function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);
 end
 
 function seasdiff!(df,var::Symbol,n=metadata(df,"Delta");name = "S$n"*String(var))
+    _assert_panel(df)
     seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,n;name=name)
 end
 
@@ -153,6 +155,7 @@ function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
 end
 
 function seasdiff!(df,var::Symbol,ns::Vector)
+    _assert_panel(df)
     seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,ns)
 end
 
@@ -177,6 +180,7 @@ function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name
 end
 
 function diff!(df,var::Symbol,n=metadata(df,"Delta");name = "D$n"*String(var))
+    _assert_panel(df)
    diff!(df,metadata(df,"PID"),metadata(df,"TID"),var,n,name=name)
 end
 
@@ -224,6 +228,13 @@ function paneldf!(df,PID::Symbol,TID::Symbol)
     println("panel variable: "*String(metadata(df,"PID")))
     println(" time variable: "*String(metadata(df,"TID")))
     println("         delta: "*string(metadata(df,"Delta")))
+end
+
+
+function _assert_panel(df)
+    @assert ("PID" in metadatakeys(df))==true "Table-level metadata key 'PID' does not exist. See `?paneldf!()`"
+    @assert ("TID" in metadatakeys(df))==true "Table-level metadata key 'TID' does not exist. See `?paneldf!()`"
+    @assert ("Delta" in metadatakeys(df))==true "Metadata field 'Delta' does not exist. See `?paneldf!()`"
 end
 
 ## Utilities

@@ -117,9 +117,18 @@ end
         paneldf!(dfm,:id,:t)
         @test metadata(dfm,"Delta") == Millisecond(1)
 
+        # Test error is thrown if wrong PID/TID name is used
         df = test_df_tsfill()
         @test_throws AssertionError paneldf!(df,:edlevel1,:year)
         @test_throws AssertionError paneldf!(df,:edlevel,:year1)
+
+        # Test error is thrown if paneldf doesn't have TID/PID/Delta
+        df = test_df_tsfill()
+        @test_throws ArgumentError lag!(df,:income)
+        metadata!(df,"Delta",1,style=:note)
+        @test_throws AssertionError lag!(df,:income)
+        metadata!(df,"PID",:edlevel,style=:note)
+        @test_throws AssertionError lag!(df,:income)
     end
 
 
