@@ -133,8 +133,8 @@ end
 
 
 ## Seasonal Diffs.
-function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "S$n"*String(var))
-    @assert n>0 "n (time shift) must be positive"
+function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name = "S$n"*String(var))
+    @assert n>zero(n) "n (time shift) must be positive"
 
     lag!(df,PID,TID,var,n;name=name)
     df[!,name] = df[!,var] - df[!,name]
@@ -160,17 +160,17 @@ end
 
 
 ## Diffs.
-function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "D$n"*String(var))
-    @assert n>0 "n (time shift) must be positive"
-    if n == 1
+function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name = "D$n"*String(var))
+    @assert n > zero(n) "n (time shift) must be positive"
+    if n == oneunit(df[1, TID])
         lag!(df,PID,TID,var,n;name=name)
         df[!,name] = df[!,var] - df[!,name]
-    elseif n > 1
+    else
         tmp_name = "___tmpD$n" # Need a temporary variable
         @assert (tmp_name ∈ names(df)) == false "Variable $(tmp_name) already exists"
 
-        diff!(df,PID,TID,var,n-1;name=tmp_name)
-        lag!(df,PID,TID,Symbol(tmp_name),1;name=name)
+        diff!(df,PID,TID,var,n-oneunit(df[1, TID]);name=tmp_name)
+        lag!(df,PID,TID,Symbol(tmp_name),oneunit(df[1, TID]);name=name)
 
         df[!,name] = df[!,tmp_name]-df[!,name]
         select!(df,Not(tmp_name))
