@@ -4,50 +4,64 @@
 [![Coverage](https://codecov.io/gh/eirikbrandsaas/PanelDataTools.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/eirikbrandsaas/PanelDataTools.jl)
 
 ## Introduction
-This package aims to introduce some convenience tools for working with Panel Data in the `DataFrames.jl` world in Julia.  In particular, it is inspired by some of Stata's great panel data packages such as `tsspell` and lag/lead/difference operators `L.`, `F.`,`S.`, and `D.`. It relies on [`DataFrames.jl`](https://github.com/JuliaData/DataFrames.jl) and [`PanelShift.jl`](https://github.com/FuZhiyu/PanelShift.jl/blob/master/src/PanelShift.jl)
+This package aims to introduce some convenience tools for working with Panel Data in the `DataFrames.jl` world in Julia. The package currently supports lags, leads, diffs, seasonal diffs, and spell analysis.
 
-From the original announcement of the `tsspell` package:
-> One underlying theme recurs frequently on Statalist: there's a direct solution to the problem making use of Stata's features. However, if you do this kind of thing a lot, you might also want a convenience program which encapsulates some of the basic tricks in the neighbourhood.
->
-> [*Nick Cox on StataList*](https://www.stata.com/statalist/archive/2002-08/msg00279.html)
+ The package is inspired by Stata's great panel data features such as `tsspell` and lag/lead/difference operators `L.`, `F.`,`S.`, and `D.`. It relies on [`DataFrames.jl`](https://github.com/JuliaData/DataFrames.jl) and [`PanelShift.jl`](https://github.com/FuZhiyu/PanelShift.jl/blob/master/src/PanelShift.jl). The goal is to provide results that are correct and easy to obtain. 
 
-## Quick Start
-Currently supports lags, leads, diffs, seasonal diffs, and spell analysis.
 
-### Working with Dates/Time:
+## Workflow:
+1. First set the `:id` and `:t` variables using `paneldf!(df::DataFrame, id::Symbol, t::Symbol)`
+2. To find the lagged `:x` column use `lag!(df,:x)`.
+   - If you don't want to store metadata you can pass the `id` and `t` column names directly: `lag!(df,:id,:t,:a))`
+3. See below for examples of lags, leads, and diffs (where you can specify multiple colomns or time gaps), how to find spells (e.g., unemployment spells), how to fill time gaps, and giving names to new columns
+### Examples working with Dates/Time:
 The default time gap ("Delta") is 1 oneunit as determined by `oneunit()`. For `Int`, `Date`, and `DateTime` this defaults to `1`, `1 day`, and `1 millisecond`, respectively. If these are not the gaps you want, you must specify the correct gaps.
+
+For example, here we have daily data with many gaps:
 ```julia
 using PanelDataTools,DataFrames,Dates
-
 df = DataFrame(id=fill(1,4),
     t=[Date(2000,1,1),Date(2000,1,2),Date(2000,2,1),Date(2001,1,1)],
-    a=[0,1,1,1],
-    )
+    a=[0,1,1,1])
+paneldf!(df,:id,:t)
 
-lag!(df,:id,:t,:a,Day(1),name="L(Day=1)")
-lag!(df,:id,:t,:a,Month(1),name="L(Month=1)")
-lag!(df,:id,:t,:a,Day(366),name="L(Day=366)") # 366 days = one year (2000 was a leap year)
-lag!(df,:id,:t,:a,Month(12),name="L(Month=12)") # 12 months = one year
-lag!(df,:id,:t,:a,Year(1),name="L(Year=1)")
-lag!(df,:id,:t,:a) # Default (picks time gap of 1 and names the column "L1a")
-  Row │ id     t           a      L(Day=1)  L(Month=1)  L(Day=366)  L(Month=12)  L(Year=1)  L1a
-     │ Int64  Date        Int64  Int64?    Int64?      Int64?      Int64?       Int64?     Int64?
+panel variable: id
+ time variable: t
+         delta: 1 day
+```
+Next, we create lags of a with various gaps
+```julia
+lag!(df,:a,Day(1),name="L(Day=1)")
+lag!(df,:a,Month(1),name="L(Month=1)")
+lag!(df,:a,Day(366),name="L(Day=366)") # 366 days = one year (2000 was a leap year)
+lag!(df,:a,Month(12),name="L(Month=12)") # 12 months = one year
+lag!(df,:a,Year(1),name="L(Year=1)")
+lag!(df,:a) # Default (picks time gap of 1 day and names the column "L1a")
+display(df)
+```
+which gives:
+```julia
+4×9 DataFrame
+ Row │ id     t           a      L(Day=1)  L(Month=1)  L(Day=366)  L(Month=12)  L(Year=1)  L1a     
+     │ Int64  Date        Int64  Int64?    Int64?      Int64?      Int64?       Int64?     Int64?  
 ─────┼─────────────────────────────────────────────────────────────────────────────────────────────
-   1 │     1  2000-01-01      0   missing     missing     missing      missing    missing  missing
+   1 │     1  2000-01-01      0   missing     missing     missing      missing    missing  missing 
    2 │     1  2000-01-02      1         0     missing     missing      missing    missing        0
-   3 │     1  2000-02-01      1   missing           0     missing      missing    missing  missing
-   4 │     1  2001-01-01      1   missing     missing           0            0          0  missing
+   3 │     1  2000-02-01      1   missing           0     missing      missing    missing  missing 
+   4 │     1  2001-01-01      1   missing     missing           0            0          0  missing 
+
 ```
 ### Shifts: Leads and Lags
 Easily create leads, lags, diffs, and seasonal diffs from panels:
 ```julia
 using PanelDataTools, DataFrames
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])
+paneldf!(df,:id,:t)
 
-lag!(df,:id,:t,:a)
-lead!(df,:id,:t,:a)
-lead!(df,:id,:t,:a,2) # last argument is how many lags
-df
+lag!(df,:a)
+lead!(df,:a)
+lead!(df,:a,2) # last argument is how many lags
+display(df)
 6×6 DataFrame
  Row │ id     t      a      L1a      F1a      F2a
      │ Int64  Int64  Int64  Int64?   Int64?   Int64?
@@ -70,11 +84,12 @@ lag!(df,:id,:t,[:a,:b,:c],2) # Find lags of a,b, and c
 There is also support for "seasonal" and difference operators mimicking Stata's `S.x` and `D.x` syntax:
 ```julia
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [1,1,1,1,0,0])
-diff!(df,:id,:t,:a,1)
-diff!(df,:id,:t,:a,2)
-seasdiff!(df,:id,:t,:a,1)
-seasdiff!(df,:id,:t,:a,2)
-df
+paneldf!(df,:id,:t)
+diff!(df,:a,1)
+diff!(df,:a,2)
+seasdiff!(df,:a,1)
+seasdiff!(df,:a,2)
+display(df)
  Row │ id     t      a      D1a      D2a      S1a      S2a
      │ Int64  Int64  Int64  Int64?   Int64?   Int64?   Int64?
 ─────┼─────────────────────────────────────────────────────────
@@ -88,7 +103,7 @@ df
 ### Provide Names
 You can also create new variable names by adding the `name="FancyName"` keyword argument:
 ```julia
-lag!(df,:id,:t,:a,name="FancyName")
+lag!(df,:a,name="FancyName")
 ```
 Note that this only works operating over a single column.
 
@@ -97,8 +112,9 @@ Note that this only works operating over a single column.
 or to obtain spells as in `tsspell` in Stata:
 ```julia
 df = DataFrame(id = [1,1,1,2,2,2], t = [1,2,3,1,2,3], a = [0,0,1,1,1,0])
-spell!(df,:id,:t,:a)
-df
+paneldf!(df,:id,:t)
+spell!(df,:a)
+display(df)
 6×6 DataFrame
  Row │ id     t      a      _spell  _seq
      │ Int64  Int64  Int64  Int64   Int64
@@ -114,7 +130,8 @@ df
 `tsfill` is used to fill in gaps of the time variable. You do not need to use it to construct the correct leads, lags or differences.
 ```julia
 df = DataFrame(id = [1,1,2,2,2], t = [1,3,1,2,3], a = [1,1,1,0,0]) # Note, missing t=2 for id=1
-df = tsfill(df,:id,:t,1) # Since tsfill extends columns in the DataFrame is does not operate inplace
+paneldf!(df,:id,:t)
+dfn = tsfill(df) # Since tsfill extends columns in the DataFrame is does not operate inplace
 6×3 DataFrame
  Row │ id     t      a
      │ Int64  Int64  Int64?
@@ -126,27 +143,29 @@ df = tsfill(df,:id,:t,1) # Since tsfill extends columns in the DataFrame is does
    5 │     2      2        0
    6 │     2      3        0
 ```
-
+or maybe you want to fill in with time gaps of 0.5:
+```julia
+dfn_half = tsfill(df,0.5)
+ Row │ id     t        a       
+     │ Int64  Float64  Int64?  
+─────┼─────────────────────────
+   1 │     1      1.0        1
+   2 │     1      1.5  missing 
+   3 │     1      2.0  missing 
+   ⋮      ⋮       ⋮        ⋮
+   9 │     2      2.5  missing 
+  10 │     2      3.0        0
+```
 ## Relevant links and packages
 - [`GLM.jl`](https://github.com/JuliaStats/GLM.jl)
 - [`FixedEffectsModels.jl`](https://github.com/FixedEffects/FixedEffectModels.jl)
 - [`Econometrics.jl`](https://github.com/Nosferican/Econometrics.jl)
 - [`Douglass.jl`](https://github.com/jmboehm/Douglass.jl)
 - [`PeriodicalDates.jl`](https://github.com/matthieugomez/PeriodicalDates.jl)
+- [TSx.jl](https://github.com/xKDR/TSx.jl)
 - More? Please add other packages here.
-
-## Features to be implemented
-- [x] Allow for higher order differences
-- [x] Implement `tsfill` to fill in gaps in time variable
-- [ ] Leverage metadata
-  - Contains info on time gap (delta), length (T), individuals (N), name of the id and time variables.
-  - Preferably this on also has a trigger for if the dataset is modified so that it is no longer sorted.
-  - For all functions allow passing `DataFrame` with required metadata so the user doesn't have to specify the `:id` and the `:t` variables all the time.
-  - Should also store information about the panel (e.g., is it balanced, consistent time gaps, ...)
-  - Will have to wait untill metadata is added (https://github.com/JuliaData/DataFrames.jl/issues/2961)
 
 ## Possible future features
 - [ ] Link with `GLM` or `FixedEffectModels` so that you can specify a model with lags (`Model(y ~ x + F.a`))
-- [ ] Link with `Douglas.jl`
 
 
