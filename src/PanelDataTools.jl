@@ -2,7 +2,6 @@ module PanelDataTools
 
 # Write your package code here.
 using DataFrames
-using ShiftedArrays
 using PanelShift
 using Dates
 
