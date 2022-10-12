@@ -162,7 +162,7 @@ dfn_half = tsfill(df,0.5)
 - [`Econometrics.jl`](https://github.com/Nosferican/Econometrics.jl)
 - [`Douglass.jl`](https://github.com/jmboehm/Douglass.jl)
 - [`PeriodicalDates.jl`](https://github.com/matthieugomez/PeriodicalDates.jl)
-- [TSx.jl](https://github.com/xKDR/TSx.jl)
+- [`TSx.jl`](https://github.com/xKDR/TSx.jl)
 - More? Please add other packages here.
 
 ## Possible future features
