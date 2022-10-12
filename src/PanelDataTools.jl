@@ -18,8 +18,8 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     gdf = groupby(df,PID)
     T = [nrow(gdf[i]) for i = 1:gdf.ngroups]
 
-    L1var = Symbol("L1"*String(var))
-    lag!(df,PID,TID,var)
+    _name = Symbol("L1"*String(var))
+    lag!(df,PID,TID,var,name=_name)
 
     df._spell = fill(1,nrow(df))
     df._seq = fill(1,nrow(df))
@@ -27,7 +27,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
      # Find spells and sequence
      for i = 1:gdf.ngroups # Just loop over each sub-dataframe:
         for t = 2:T[i]
-            if isequal(gdf[i][t,var], gdf[i][t,L1var])
+            if isequal(gdf[i][t,var], gdf[i][t,_name])
                 gdf[i][t,:_spell] = gdf[i][t-1,:_spell]
                 gdf[i][t,:_seq] = gdf[i][t-1,:_seq]+1
             else
@@ -37,7 +37,7 @@ function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
         end
     end
 
-    select!(df, Not(L1var))
+    select!(df, Not(_name))
 
 
     return nothing

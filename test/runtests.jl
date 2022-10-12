@@ -422,7 +422,16 @@ end
         spell!(df,:i,:year,:val)
         @test df._spell == [1, 1, 1, 1]
     end
-end
+    @testset "Issue #26 - broken spell with Dates" begin
+        df = DataFrame(id = [1,1,1,1,1], t = [1,2,3,4,5], a = [1,1,2,3,4])
+        dfb = deepcopy(df)
+        spell!(dfb,:id,:t,:a)
+
+        df.t = Year.(df.t)
+        lag!(df,:id,:t,:a) # works
+        spell!(df,:id,:t,:a) # crashes
+        @test isequal(df._spell,dfb._spell)
+    end
 
 ## Testing dates
 @testset "Dates" verbose = true begin
