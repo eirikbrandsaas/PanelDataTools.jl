@@ -362,9 +362,22 @@ end
 
         df.t = Year.(df.t)
         lag!(df,:id,:t,:a) # works
-        spell!(df,:id,:t,:a) # crashes
+        spell!(df,:id,:t,:a) # used to crashes
         @test isequal(df._spell,dfb._spell)
     end
+
+    @testset "Issue #25 - broken diff with Dates" begin
+        dfb = DataFrame(id = [1,1,2,2], t = [1,3,1,2], a = [1,1,0,1])
+        diff!(dfb,:id,:t,:a) # works
+
+        df = DataFrame(id = [1,1,2,2], t = [Date(2000),Date(2001),Date(2000),Date(2000,1,2)], a = [1,1,0,1])
+        diff!(df,:id,:t,:a,name="D1Default") # crashes
+        @test isequal(dfb.D1a,df.D1Default)
+
+        diff!(df,:id,:t,:a,Year(1),name="D1Year") # crashes
+        @test isequal(dfb.D1a,df.D1a)
+    end
+
 end
 
 ## Testing dates
