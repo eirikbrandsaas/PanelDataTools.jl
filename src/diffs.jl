@@ -26,7 +26,7 @@ end
 
 
 ## Diffs.
-function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name = "D$n"*String(var))
+function diff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]);name = "D$n"*String(var))
     @assert n > zero(n) "n (time shift) must be positive"
     if n == oneunit(df[1, TID])
         lag!(df,PID,TID,var,n;name=name)
