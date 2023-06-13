@@ -216,7 +216,8 @@ end
 
 @testset "Basic spell!" begin
     df = test_df_simple1()
-    spell!(df,:id,:t,:a)
+    paneldf!(df,:id,:t)
+    spell!(df,:a)
     @test df._spell == [1, 1, 2, 1, 1, 2]
     @test df._seq == [1, 2, 1, 1, 2, 1]
 
@@ -228,17 +229,20 @@ end
     @test isequal(dfm._seq,df._seq)
 
     df = test_df_simple2()
-    spell!(df,:id,:t,:a)
+    paneldf!(df,:id,:t)
+    spell!(df,:a)
     @test df._spell == [1, 1, 1, 1, 2, 2]
     @test df._seq == [1, 2, 3, 1, 1, 2]
 
     df = df_diffT()
-    spell!(df,:id,:t,:a)
+    paneldf!(df,:id,:t)
+    spell!(df,:a)
     @test df._spell == [1, 1, 1, 2, 2]
     @test df._seq == [1, 2, 1, 1, 2]
 
     df = df_gapT()
-    spell!(df,:id,:t,:a)
+    paneldf!(df,:id,:t)
+    spell!(df,:a)
     @test df._spell == [1, 2, 1, 2, 2]
     @test df._seq == [1, 1, 1, 1, 2]
 end

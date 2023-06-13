@@ -1,4 +1,4 @@
-function spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
+function _spell!(df,PID::Symbol,TID::Symbol,var::Symbol)
     for var in ["_end", "_seq", "_spell"]
         if "$var" ∈ Set(names(df))
             throw(ArgumentError("$var already exists"))
@@ -36,5 +36,5 @@ end
 
 function spell!(df,var::Symbol)
     _assert_panel(df)
-    spell!(df,metadata(df,"PID"),metadata(df,"TID"),var)
+    _spell!(df,metadata(df,"PID"),metadata(df,"TID"),var)
 end
