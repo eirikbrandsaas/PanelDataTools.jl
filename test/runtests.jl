@@ -65,7 +65,8 @@ end
 
 @testset "tsfill" begin
     df = test_df_tsfill()
-    df = tsfill(df,:edlevel,:year,Year(1))
+    paneldf!(df,:edlevel,:year)
+    df = tsfill(df,Year(1))
     @test df.edlevel == sort!(repeat([1,2],5))
     @test df.year == repeat(collect(Year(1988):Year(1):Year(1992)),2)
     @test isequal(df.income,[14500, 14750, 14950, 15100, missing, missing, 22100, 22200, missing, 22800])
@@ -75,7 +76,8 @@ end
     dfm = tsfill(dfm,Year(1))
     @test isequal(df,dfm)
     df = df_gapT()
-    df = tsfill(df,:id,:t,1)
+    paneldf!(df,:id,:t)
+    df = tsfill(df,1)
     @test df.id == [1,1,1,2,2,2]
     @test df.t == [1,2,3,1,2,3]
     @test isequal(df.a,[1,missing,1,1,0,0])

@@ -1,4 +1,4 @@
-function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
+function _tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
     mint = minimum(dfi[!,TID])
     maxt = maximum(dfi[!,TID])
     t = collect(mint:n:maxt)
@@ -16,5 +16,5 @@ function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
 end
 
 function tsfill(df,n=metadata(df,"Delta"))
-   tsfill(df,metadata(df,"PID"),metadata(df,"TID"),n)
+   _tsfill(df,metadata(df,"PID"),metadata(df,"TID"),n)
 end
