@@ -1,5 +1,5 @@
 ## Seasonal Diffs.
-function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name = "S$n"*String(var))
+function _seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,n=oneunit(df[1, TID]-df[1, TID]);name = "S$n"*String(var))
     @assert n>zero(n) "n (time shift) must be positive"
 
     lag!(df,PID,TID,var,n;name=name)
@@ -9,19 +9,19 @@ end
 
 function seasdiff!(df,var::Symbol,n=metadata(df,"Delta");name = "S$n"*String(var))
     _assert_panel(df)
-    seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,n;name=name)
+    _seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,n;name=name)
 end
 
-function seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
+function _seasdiff!(df,PID::Symbol,TID::Symbol,var::Symbol,ns::Vector)
     for n in ns
-        seasdiff!(df,PID,TID,var,n)
+        _seasdiff!(df,PID,TID,var,n)
     end
     return nothing
 end
 
 function seasdiff!(df,var::Symbol,ns::Vector)
     _assert_panel(df)
-    seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,ns)
+    _seasdiff!(df,metadata(df,"PID"),metadata(df,"TID"),var,ns)
 end
 
 

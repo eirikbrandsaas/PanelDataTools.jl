@@ -222,8 +222,8 @@ end
     spell!(df,:a)
     @test df._spell == [1, 1, 2, 1, 1, 2]
     @test df._seq == [1, 2, 1, 1, 2, 1]
+    @test_throws ArgumentError spell!(df,:a) # Check that test throws if variables exist
 
-    @test_throws ArgumentError spell!(df,:id,:t,:a) # Check that test throws if variables exist
     dfm = test_df_simple1()
     paneldf!(dfm,:id,:t)
     spell!(dfm,:a)
@@ -254,9 +254,10 @@ end
     @testset "Basic seasdiff!" begin
         df = test_df_simple1_long()
         dfm = test_df_simple1_long()
-        seasdiff!(df,:id,:t,:a)
-        seasdiff!(df,:id,:t,:a,2)
-        seasdiff!(df,:id,:t,:a,3)
+        paneldf!(df,:id,:t)
+        seasdiff!(df,:a)
+        seasdiff!(df,:a,2)
+        seasdiff!(df,:a,3)
         @test isequal(df.S1a,[missing,0,1,0,missing,0,-1,1])
         @test isequal(df.S2a,[missing, missing, 1, 1, missing, missing, -1,0])
         @test isequal(df.S3a,[missing, missing, missing, 1, missing, missing, missing,0])
@@ -266,7 +267,8 @@ end
         @test isequal(df.S2a,dfm.S2a)
 
         df = test_df_simple2()
-        seasdiff!(df,:id,:t,:a,[1,2])
+        paneldf!(df,:id,:t)
+        seasdiff!(df,:a,[1,2])
         @test isequal(df.S1a,[missing, 0, 0, missing,-1,0])
         @test isequal(df.S2a,[missing, missing, 0, missing,missing,-1])
 
@@ -275,11 +277,12 @@ end
         seasdiff!(dfm,:a,[1,2])
         @test isequal(df,dfm)
 
-        @test_throws AssertionError seasdiff!(df,:id,:t,:a,0)
+        @test_throws AssertionError seasdiff!(df,:id,0)
 
         df = test_df_simple1_long()
-        seasdiff!(df,:id,:t,:a)
-        seasdiff!(df,:id,:t,:a;name="customname")
+        paneldf!(df,:id,:t)
+        seasdiff!(df,:a)
+        seasdiff!(df,:a;name="customname")
         @test isequal(df[!,:S1a],df[!,:customname])
     end
 
@@ -307,14 +310,15 @@ end
 
     @testset "Seasdiff and diff up to four" begin
         df = test_df_diffs()
-        diff!(df,:id,:t,:a,1)
-        diff!(df,:id,:t,:a,2)
-        diff!(df,:id,:t,:a,3)
-        diff!(df,:id,:t,:a,4)
-        seasdiff!(df,:id,:t,:a,1)
-        seasdiff!(df,:id,:t,:a,2)
-        seasdiff!(df,:id,:t,:a,3)
-        seasdiff!(df,:id,:t,:a,4)
+        paneldf!(df,:id,:t)
+        diff!(df,:a,1)
+        diff!(df,:a,2)
+        diff!(df,:a,3)
+        diff!(df,:a,4)
+        seasdiff!(df,:a,1)
+        seasdiff!(df,:a,2)
+        seasdiff!(df,:a,3)
+        seasdiff!(df,:a,4)
 
         @test isequal(df.D1a,[missing,0,1,1,1])
         @test isequal(df.D2a,[missing,missing,1,0,0])
@@ -334,17 +338,19 @@ end
 @testset "Issue tests" verbose = true begin
     @testset "Issue #4 - column names in spell!() " begin
         df = DataFrame(i=[1,1,2,2],year=[1,2,1,2],val=[1,1,1,1])
-        spell!(df,:i,:year,:val)
+        paneldf!(df,:i,:year)
+        spell!(df,:val)
         @test df._spell == [1, 1, 1, 1]
     end
 
     @testset "Issue #27 - broken diff with DateTimes" begin
         df = DataFrame(id = [1,1,1,1,1], t = [1,2,3,4,5], a = [1,1,2,3,4])
+        paneldf!(df,:id,:t)
         dfb = deepcopy(df)
         diff!(dfb,:id,:t,:a)
         diff!(dfb,:id,:t,:a,2)
-        seasdiff!(dfb,:id,:t,:a)
-        seasdiff!(dfb,:id,:t,:a,2)
+        seasdiff!(dfb,:a)
+        seasdiff!(dfb,:a,2)
 
         df.t = Year.(df.t)
         diff!(df,:id,:t,:a,name="Default")
@@ -355,25 +361,27 @@ end
         @test isequal(dfb.D2a,df[!,"D2 yearsa"])
         @test isequal(dfb.D1a,df[!,"Default"])
 
-        seasdiff!(df,:id,:t,:a) # crashes
-        seasdiff!(df,:id,:t,:a,Year(2)) # crashes
+        seasdiff!(df,a:a) # crashes
+        seasdiff!(df,:a,Year(2)) # crashes
         @test isequal(dfb.S1a,df[!,"S1 yeara"])
         @test isequal(dfb.S2a,df[!,"S2 yearsa"])
     end
 
     @testset "Issue #26 - broken spell with Dates" begin
         df = DataFrame(id = [1,1,1,1,1], t = [1,2,3,4,5], a = [1,1,2,3,4])
+        paneldf!(df,:id,:t)
         dfb = deepcopy(df)
-        spell!(dfb,:id,:t,:a)
+        spell!(dfb,:a)
 
         df.t = Year.(df.t)
         lag!(df,:id,:t,:a) # works
-        spell!(df,:id,:t,:a) # used to crashes
+        spell!(df,:a) # used to crashes
         @test isequal(df._spell,dfb._spell)
     end
 
     @testset "Issue #25 - broken diff with Dates" begin
         dfb = DataFrame(id = [1,1,2,2], t = [1,3,1,2], a = [1,1,0,1])
+        paneldf!(dfb,:id,:t)
         diff!(dfb,:id,:t,:a) # works
 
         df = DataFrame(id = [1,1,2,2], t = [Date(2000),Date(2001),Date(2000),Date(2000,1,2)], a = [1,1,0,1])
