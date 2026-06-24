@@ -388,6 +388,29 @@ end
         @test_broken isequal(dfb.D1a,df.D1a)
     end
 
+    @testset "Issue #34 - paneldf! output only when asked" begin
+        # Helper: capture everything written to stdout while running `f`.
+        capture_stdout(f) = mktemp() do path, io
+            redirect_stdout(f, io)
+            flush(io)
+            read(path, String)
+        end
+
+        # verbose=true prints the panel summary
+        out = capture_stdout() do
+            paneldf!(test_df_simple1(), :id, :t; verbose=true)
+        end
+        @test occursin("panel variable", out)
+        @test occursin("time variable", out)
+        @test occursin("delta", out)
+
+        # Default (verbose=false) prints nothing
+        out = capture_stdout() do
+            paneldf!(test_df_simple1(), :id, :t)
+        end
+        @test isempty(out)
+    end
+
 end
 
 ## Testing dates
