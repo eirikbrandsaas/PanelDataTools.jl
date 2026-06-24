@@ -435,6 +435,43 @@ end
         @test_throws AssertionError paneldf!(test_df_simple1(),:id,:t; delta=0)
     end
 
+    @testset "Issue #21 - panel structure checks" begin
+        capture_stdout(f) = mktemp() do path, io
+            redirect_stdout(f, io); flush(io); read(path, String)
+        end
+
+        # Balanced panel, contiguous time, no duplicates
+        df = test_df_simple1(); paneldf!(df,:id,:t)
+        @test isbalanced(df)
+        @test !hasgaps(df)
+        @test !hasduplicates(df)
+
+        # Unbalanced (ids have different time sets) but each id is contiguous
+        @test !isbalanced(df_diffT(),:id,:t)
+        @test !hasgaps(df_diffT(),:id,:t,1)
+
+        # Gap within an id (id 1 observed at t = 1, 3)
+        @test !isbalanced(df_gapT(),:id,:t)
+        @test hasgaps(df_gapT(),:id,:t,1)
+
+        # Duplicate (id,t) detection
+        dup = DataFrame(id=[1,1,2], t=[1,1,2], a=[0,1,0])
+        @test hasduplicates(dup,:id,:t)
+        @test !hasduplicates(test_df_simple1(),:id,:t)
+
+        # checkpanel returns a summary and warns (only) on duplicates
+        @test checkpanel(df_gapT(),:id,:t,1) == (balanced=false, gaps=true, duplicates=false)
+        @test_logs (:warn,) checkpanel(dup,:id,:t)
+        @test_logs checkpanel(test_df_simple1(),:id,:t) # clean panel -> no warning
+
+        # paneldf! verbose now also reports structure
+        out = capture_stdout() do
+            paneldf!(test_df_simple1(), :id, :t; verbose=true)
+        end
+        @test occursin("balanced", out)
+        @test occursin("gaps", out)
+    end
+
 end
 
 ## Testing dates
