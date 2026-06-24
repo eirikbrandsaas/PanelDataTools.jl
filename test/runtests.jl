@@ -411,6 +411,30 @@ end
         @test isempty(out)
     end
 
+    @testset "Issue #24 - paneldf! custom default time gap (delta)" begin
+        # Default delta is the unit step
+        df = test_df_simple1()
+        paneldf!(df,:id,:t)
+        @test metadata(df,"Delta") == 1
+
+        # A custom integer delta is stored and used as the default gap by lag!
+        df = test_df_simple1_long()
+        paneldf!(df,:id,:t; delta=2)
+        @test metadata(df,"Delta") == 2
+        lag!(df,:a) # uses Delta=2 by default -> column L2a
+        dfb = test_df_simple1_long()
+        lag!(dfb,:id,:t,:a,2) # explicit 2-period lag
+        @test isequal(df.L2a, dfb.L2a)
+
+        # A custom delta works with Date-typed time too
+        df = test_df_date()
+        paneldf!(df,:id,:t; delta=Year(1))
+        @test metadata(df,"Delta") == Year(1)
+
+        # delta must be positive
+        @test_throws AssertionError paneldf!(test_df_simple1(),:id,:t; delta=0)
+    end
+
 end
 
 ## Testing dates
