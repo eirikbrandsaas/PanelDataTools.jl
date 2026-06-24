@@ -1,8 +1,10 @@
 ## Metadata
 """
-    paneldf!(df,PID::Symbol,TID:Symbol)
+    paneldf!(df,PID::Symbol,TID::Symbol; verbose=false)
 
 Attaches `:PID` and `:TID` to `df` so that one doesn't have to pass those all the times.
+
+Pass `verbose=true` to print the inferred panel variable, time variable, and delta.
 
 # Examples
 ```jldoctest
@@ -19,7 +21,7 @@ lag!(df,:x) # No need to specify panel (:id) and time (:t) columns
    4 │     2      2      0        1
 ```
 """
-function paneldf!(df,PID::Symbol,TID::Symbol)
+function paneldf!(df,PID::Symbol,TID::Symbol; verbose=false)
     @assert (String(PID) in names(df)) == true String(PID)*" (panel variable) does not exist in df"
     @assert (String(TID) in names(df)) == true String(TID)*" (time variable) does not exist in df"
 
@@ -27,9 +29,12 @@ function paneldf!(df,PID::Symbol,TID::Symbol)
     metadata!(df, "TID", TID, style=:note)
     metadata!(df, "Delta", oneunit(df[1,TID]-df[1, TID]),style=:note)
 
-    println("panel variable: "*String(metadata(df,"PID")))
-    println(" time variable: "*String(metadata(df,"TID")))
-    println("         delta: "*string(metadata(df,"Delta")))
+    if verbose
+        println("panel variable: "*String(metadata(df,"PID")))
+        println(" time variable: "*String(metadata(df,"TID")))
+        println("         delta: "*string(metadata(df,"Delta")))
+    end
+    return nothing
 end
 
 

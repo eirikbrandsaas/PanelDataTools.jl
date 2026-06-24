@@ -23,7 +23,7 @@ using PanelDataTools,DataFrames,Dates
 df = DataFrame(id=fill(1,4),
     t=[Date(2000,1,1),Date(2000,1,2),Date(2000,2,1),Date(2001,1,1)],
     a=[0,1,1,1])
-paneldf!(df,:id,:t)
+paneldf!(df,:id,:t; verbose=true) # verbose=true prints the inferred panel/time/delta
 
 panel variable: id
  time variable: t
