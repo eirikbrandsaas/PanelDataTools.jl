@@ -1,8 +1,12 @@
 ## Metadata
 """
-    paneldf!(df,PID::Symbol,TID::Symbol; verbose=false)
+    paneldf!(df,PID::Symbol,TID::Symbol; delta=oneunit(df[1,TID]-df[1,TID]), verbose=false)
 
 Attaches `:PID` and `:TID` to `df` so that one doesn't have to pass those all the times.
+
+`delta` sets the default time gap used by `lag!`, `diff!`, etc. when no gap is
+given; it defaults to one unit of the time variable but can be overridden, e.g.
+`paneldf!(df, :id, :t; delta=Year(2))`.
 
 Pass `verbose=true` to print the inferred panel variable, time variable, and delta.
 
@@ -21,13 +25,17 @@ lag!(df,:x) # No need to specify panel (:id) and time (:t) columns
    4 │     2      2      0        1
 ```
 """
-function paneldf!(df,PID::Symbol,TID::Symbol; verbose=false)
+function paneldf!(df,PID::Symbol,TID::Symbol; delta=nothing, verbose=false)
     @assert (String(PID) in names(df)) == true String(PID)*" (panel variable) does not exist in df"
     @assert (String(TID) in names(df)) == true String(TID)*" (time variable) does not exist in df"
+    # Resolve the default here (not in the signature): it reads df[1,TID], which
+    # must only happen after TID is confirmed to exist.
+    delta = isnothing(delta) ? oneunit(df[1,TID]-df[1, TID]) : delta
+    @assert delta > zero(delta) "delta (default time gap) must be positive"
 
     metadata!(df, "PID", PID, style=:note)
     metadata!(df, "TID", TID, style=:note)
-    metadata!(df, "Delta", oneunit(df[1,TID]-df[1, TID]),style=:note)
+    metadata!(df, "Delta", delta, style=:note)
 
     if verbose
         println("panel variable: "*String(metadata(df,"PID")))
