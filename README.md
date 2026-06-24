@@ -4,7 +4,7 @@
 [![Coverage](https://codecov.io/gh/eirikbrandsaas/PanelDataTools.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/eirikbrandsaas/PanelDataTools.jl)
 
 ## Introduction
-This package aims to introduce some convenience tools for working with Panel Data in the `DataFrames.jl` world in Julia. The package currently supports lags, leads, diffs, seasonal diffs, and spell analysis.
+This package aims to introduce some convenience tools for working with Panel Data in the `DataFrames.jl` world in Julia. The package currently supports lags, leads, diffs, seasonal diffs, spell analysis, and panel structure checks.
 
  The package is inspired by Stata's great panel data features such as `tsspell` and lag/lead/difference operators `L.`, `F.`,`S.`, and `D.`. It relies on [`DataFrames.jl`](https://github.com/JuliaData/DataFrames.jl) and [`PanelShift.jl`](https://github.com/FuZhiyu/PanelShift.jl/blob/master/src/PanelShift.jl). The goal is to provide results that are correct and easy to obtain. 
 
@@ -28,6 +28,9 @@ paneldf!(df,:id,:t; verbose=true) # verbose=true prints the inferred panel/time/
 panel variable: id
  time variable: t
          delta: 1 day
+      balanced: true
+          gaps: true
+    duplicates: false
 ```
 Next, we create lags of a with various gaps
 ```julia
@@ -156,6 +159,27 @@ dfn_half = tsfill(df,0.5)
    9 │     2      2.5  missing 
   10 │     2      3.0        0
 ```
+### Checking panel structure (`checkpanel`)
+`checkpanel` reports whether a panel is balanced (every id observed at the same time points), whether any id has gaps in its time series, and whether there are duplicate `(id, t)` pairs. It always prints the summary and returns a NamedTuple:
+```julia
+df = DataFrame(id = [1,1,2,2,2], t = [1,3,1,2,3], a = [1,1,1,0,0]) # id=1 is missing t=2
+paneldf!(df,:id,:t)
+checkpanel(df)
+      balanced: false
+          gaps: true
+    duplicates: false
+```
+The individual checks are also available as predicates returning a `Bool`: `isbalanced(df)`, `hasgaps(df)`, and `hasduplicates(df)` (each also accepts explicit `:id`/`:t` columns). Unbalanced and gapped panels are fully supported by the rest of the package, so they are reported for information only. Duplicate `(id, t)` pairs, however, make lags/diffs/spells unreliable, so they always trigger a warning:
+```julia
+df = DataFrame(id = [1,1,2], t = [1,1,2], a = [0,1,0]) # id=1 has two t=1 rows
+checkpanel(df,:id,:t)
+      balanced: false
+          gaps: false
+    duplicates: true
+┌ Warning: Panel has duplicate (id, t) pairs; lags/diffs/spells will be unreliable
+└ @ PanelDataTools
+```
+
 ## Relevant links and packages
 - [`GLM.jl`](https://github.com/JuliaStats/GLM.jl)
 - [`FixedEffectsModels.jl`](https://github.com/FixedEffects/FixedEffectModels.jl)
