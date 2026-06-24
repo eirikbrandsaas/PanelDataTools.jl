@@ -1,4 +1,4 @@
-function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(df[1, TID]))
+function tsfill(dfi,PID::Symbol,TID::Symbol,n=oneunit(dfi[1, TID]-dfi[1, TID]))
     mint = minimum(dfi[!,TID])
     maxt = maximum(dfi[!,TID])
     t = collect(mint:n:maxt)

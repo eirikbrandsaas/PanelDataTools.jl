@@ -79,6 +79,12 @@ end
     @test df.id == [1,1,1,2,2,2]
     @test df.t == [1,2,3,1,2,3]
     @test isequal(df.a,[1,missing,1,1,0,0])
+
+    # Default n should equal explicitly passing the unit step (regression: the
+    # default arg referenced an undefined `df` instead of the `dfi` parameter).
+    @test isequal(tsfill(df_gapT(),:id,:t), tsfill(df_gapT(),:id,:t,1))
+    @test isequal(tsfill(test_df_tsfill(),:edlevel,:year),
+                  tsfill(test_df_tsfill(),:edlevel,:year,Year(1)))
 end
 
 
