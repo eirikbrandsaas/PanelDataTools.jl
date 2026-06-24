@@ -8,7 +8,9 @@ Attaches `:PID` and `:TID` to `df` so that one doesn't have to pass those all th
 given; it defaults to one unit of the time variable but can be overridden, e.g.
 `paneldf!(df, :id, :t; delta=Year(2))`.
 
-Pass `verbose=true` to print the inferred panel variable, time variable, and delta.
+Pass `verbose=true` to print the inferred panel variable, time variable, and
+delta along with whether the panel is balanced and has time gaps (see
+[`checkpanel`](@ref)).
 
 # Examples
 ```jldoctest
@@ -41,6 +43,7 @@ function paneldf!(df,PID::Symbol,TID::Symbol; delta=nothing, verbose=false)
         println("panel variable: "*String(metadata(df,"PID")))
         println(" time variable: "*String(metadata(df,"TID")))
         println("         delta: "*string(metadata(df,"Delta")))
+        checkpanel(df, PID, TID, delta) # reports structure and warns on duplicates
     end
     return nothing
 end
